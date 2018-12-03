@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/docker.sh"
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+MYPI_HOSTNAME="$(Config::Get ".host.name")"
+MYPI_USERNAME="$(Config::Get ".host.user")"
+MYPI_ROOT="$(Config::Get ".host.root")"
+
+if [[ "$(uname -m)" == "armv7l" ]]; then
+    Docker::ImageCreateMissing "socat"
+
+    (docker kill mypi-remote-dbg || true) 2>/dev/null
+    (docker rm mypi-remote-dbg || true) 2>/dev/null
+
+    docker run \
+        --name mypi-remote-debug \
+        --volume /var/run/docker.sock:/var/run/docker.sock \
+        --publish 127.0.0.1:1234:1234 \
+        "$(Docker::ImageName socat)" \
+        TCP-LISTEN:1234,fork UNIX-CONNECT:/var/run/docker.sock
+else
+    Docker::ImageCreateMissing "ssh"
+
+    if DOCKER_HOST=tcp://localhost:1234 docker ps &> /dev/null; then
+        echo "Connection already established"
+        exit 0
+    fi
+
+    (docker kill mypi-remote-dbg || true) 2>/dev/null
+    (docker rm mypi-remote-dbg || true) 2>/dev/null
+
+    docker run \
+        --detach \
+        --name    mypi-remote-debug \
+        --volume  ${HOME}/.ssh/id_rsa:/root/.ssh/id_rsa \
+        --volume  ${HOME}/.ssh/known_hosts:/root/.ssh/known_hosts \
+        --publish 127.0.0.1:1234:1234 \
+        "$(Docker::ImageName ssh)" \
+        -v -4 -L :1234:127.0.0.1:1234 "${MYPI_USERNAME}@${MYPI_HOSTNAME}" "${MYPI_ROOT}/scripts/start-remote-debug"
+fi

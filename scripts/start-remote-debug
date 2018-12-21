@@ -18,7 +18,7 @@ if [[ "$(uname -m)" == "armv7l" ]]; then
     (docker rm mypi-remote-dbg || true) 2>/dev/null
 
     docker run \
-        --name mypi-remote-debug \
+        --name mypi-remote-dbg \
         --volume /var/run/docker.sock:/var/run/docker.sock \
         --publish 127.0.0.1:1234:1234 \
         "$(Docker::ImageName socat)" \
@@ -31,12 +31,12 @@ else
         exit 0
     fi
 
-    (docker kill mypi-remote-dbg || true) 2>/dev/null
+    (docker kill mypi-remote-dbg || true)  2>/dev/null
     (docker rm mypi-remote-dbg || true) 2>/dev/null
 
     docker run \
         --detach \
-        --name    mypi-remote-debug \
+        --name    mypi-remote-dbg \
         --volume  ${HOME}/.ssh/id_rsa:/root/.ssh/id_rsa \
         --volume  ${HOME}/.ssh/known_hosts:/root/.ssh/known_hosts \
         --publish 127.0.0.1:1234:1234 \

@@ -56,3 +56,8 @@ Docker::ImageCreateMissing()
         Docker::ImageCreate "${1}"
     fi
 }
+
+Docker::ImageCreateFromGO()
+{
+    false
+}

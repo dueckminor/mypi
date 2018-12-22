@@ -24,26 +24,35 @@ Docker::ImageCreate()
 {
     local SHORT_NAME="${1}"
     local DIR_DOCKER="${DIR_ROOT}/docker/${SHORT_NAME}"
+    local DIR_DOCKER_BUILD="${DIR_DOCKER}"
 
-    if [[ ! -f "${DIR_DOCKER}/Dockerfile" ]]; then
+    if [[ -f "${DIR_DOCKER}/prepare.sh" ]]; then
+        "${DIR_DOCKER}/prepare.sh"
+    fi
+
+    if [[ -f "${DIR_DOCKER}/src/Dockerfile" ]]; then
+        DIR_DOCKER_BUILD="${DIR_DOCKER}/src"
+    fi
+
+    if [[ ! -f "${DIR_DOCKER_BUILD}/Dockerfile" ]]; then
         false
     fi
 
-    mkdir -p "${DIR_DOCKER}/.docker/${CPU}"
+    mkdir -p "${DIR_DOCKER_BUILD}/.docker/${CPU}"
 
-    local DOCKERFILE="${DIR_DOCKER}/.docker/${CPU}/Dockerfile"
+    local DOCKERFILE="${DIR_DOCKER_BUILD}/.docker/${CPU}/Dockerfile"
     local TEMPLATE
  
-    TEMPLATE="$(cat "${DIR_DOCKER}/Dockerfile")"
+    TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
     TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
     TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
+    if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
+        TEMPLATE="$("${DIR_DOCKER}/filter.sh" <<< "${TEMPLATE}")"
+    fi
 
     echo "${TEMPLATE}" > "${DOCKERFILE}"
 
-    pushd "${DIR_DOCKER}" > /dev/null
-        if [[ -f "./prepare.sh" ]]; then
-            "./prepare.sh"
-        fi
+    pushd "${DIR_DOCKER_BUILD}" > /dev/null
         docker build . -f ".docker/${CPU}/Dockerfile" -t "$(Docker::ImageName ${SHORT_NAME})"
     popd > /dev/null
 

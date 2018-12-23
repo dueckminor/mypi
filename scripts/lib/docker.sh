@@ -5,7 +5,15 @@ SYS="$(uname -s | awk '{print tolower($0)}')"
 CPU="$(uname -m | awk '{print tolower($0)}')"
 
 case "${CPU}" in
-x86_64) CPU=amd64;;
+x86_64) 
+    CPU=amd64
+    ;;
+aarch64)
+    CPU=aarch64
+    ;;
+armv7l) 
+    CPU=arm32v6
+    ;;
 esac
 
 DOCKER_OWNER=dueckminor
@@ -44,6 +52,7 @@ Docker::ImageCreate()
     local TEMPLATE
  
     TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
+    TEMPLATE="$(sed "s,@ALPINE@,alpine:3.8," <<< "${TEMPLATE}")"
     TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
     TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
     if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
@@ -69,4 +78,24 @@ Docker::ImageCreateMissing()
 Docker::ImageCreateFromGO()
 {
     false
+}
+
+Docker::Status() {
+    docker inspect -f "{{.State.Running}}" "${1}" 2> /dev/null | grep -v "^$" || echo na
+}
+
+Docker::Start() {
+    local NAME="${1}"
+    shift
+    local RUNNING
+    RUNNING=$(Docker::Status "${NAME}")
+    if [[ "${RUNNING}" == "true" ]]; then
+        echo "${NAME} is running"
+    elif [[ "${RUNNING}" == "false" ]]; then
+        echo "restarting ${NAME}"
+        docker start "${NAME}"
+    else
+        echo docker run -d --name "${NAME}" "$@"
+        docker run -d --name "${NAME}" "$@"
+    fi
 }

@@ -1,3 +1,3 @@
-FROM @CPU@/alpine:3.8
+FROM @ALPINE@
 
 RUN apk add --no-cache nodejs npm

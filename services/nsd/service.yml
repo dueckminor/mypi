@@ -1,0 +1,10 @@
+service:
+  image: nsd-certbot
+  depends: []
+  mount:
+  - etc/letsencrypt
+  - etc/nsd
+  - opt/letsencrypt
+  ports:
+  - 10053:53/udp
+  - 10053:53/tcp

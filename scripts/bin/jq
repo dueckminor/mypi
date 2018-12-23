@@ -7,6 +7,11 @@ if [[ -f /usr/local/bin/jq ]]; then
     exit
 fi
 
+if [[ -f /usr/bin/jq ]]; then
+    /usr/bin/jq "$@"
+    exit
+fi
+
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
 
 source "${DIR_ROOT}/scripts/lib/docker.sh"

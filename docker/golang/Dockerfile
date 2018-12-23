@@ -1,4 +1,4 @@
-FROM @CPU@/alpine:3.8
+FROM @ALPINE@
 
 RUN apk add --no-cache \
 		ca-certificates
@@ -66,4 +66,4 @@ WORKDIR $GOPATH
 
 RUN apk add --no-cache gcc git musl-dev
 
-RUN go get -u github.com/derekparker/delve/cmd/dlv
+# RUN go get -u github.com/derekparker/delve/cmd/dlv

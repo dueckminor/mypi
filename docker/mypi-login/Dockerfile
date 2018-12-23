@@ -1,4 +1,4 @@
-FROM @CPU@/alpine:3.8
+FROM @ALPINE@
 
 COPY .docker/@CPU@/mypi-login /usr/local/bin
 

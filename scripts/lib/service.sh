@@ -5,7 +5,7 @@ DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
 source "${DIR_ROOT}/scripts/lib/config.sh"
 source "${DIR_ROOT}/scripts/lib/docker.sh"
 
-INSTALL_ROOT="$(Config::Get ".config.root")"
+INSTALL_ROOT="$(Config::GetRoot)"
 
 Service::Start() {
     local SERVICE_NAME="${1}"

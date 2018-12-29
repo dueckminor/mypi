@@ -1,0 +1,10 @@
+service:
+  image: nginx
+  depends: []
+  mount:
+  - etc/letsencrypt
+  - etc/nginx/conf.d
+  ports:
+  - 10080:80/tcp
+  - 10443:443/tcp
+  - 10444:444/tcp

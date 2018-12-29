@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+dyndns="$(Config::Get ".config.dyndns")"
+if [[ -z "${dyndns}" ]]; then
+    exit 1
+fi
+
+DOMAIN="$(Config::Get ".config.domains[0]")"
+if [[ -z "${HOSTNAME}" ]]; then
+  DOMAIN="${dyndns}"
+fi
+
+Config::WriteEtc "nginx/conf.d/default.conf" <<EOF
+server_names_hash_bucket_size 64;
+
+# redirect every http connect to https
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+  server_name _;
+  return 301 https://\$host\$request_uri;
+}
+
+# just close the connection for https requests with an unused virtual-hostname
+server {
+  listen 443 ssl;
+  server_name _;
+  ssl_certificate      /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+  ssl_certificate_key  /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+  location / {
+    # 444 is a magic response code which tells nginx, just to close the connection
+    return 444;
+  }
+}
+EOF
+
+Config::WriteEtc "nginx/conf.d/fritzbox.${DOMAIN}.conf" <<EOF
+server {
+  listen 443 ssl;
+  server_name          fritzbox.${DOMAIN};
+  ssl_certificate      /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+  ssl_certificate_key  /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+  location / {
+    proxy_pass http://192.168.0.1;
+  }
+}
+EOF

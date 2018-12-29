@@ -6,24 +6,12 @@ DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
-INSTALL_ROOT="$(Config::Get ".config.root")"
-if [[ -z "${INSTALL_ROOT}" ]]; then
-    exit 1
-fi
-
-if [[ ! -d "${INSTALL_ROOT}" ]]; then
-    exit 1
-fi
-
 dyndns="$(Config::Get ".config.dyndns")"
 if [[ -z "${dyndns}" ]]; then
     exit 1
 fi
 
-DIR_ETC_NSD="${INSTALL_ROOT}/etc/nsd"
-mkdir -p "${DIR_ETC_NSD}/zones"
-
-(cat | grep -v "^ *#" | grep -v "^ *$") > "${DIR_ETC_NSD}/nsd.conf" <<EOF  
+Config::WriteEtcStripped "nsd/nsd.conf" <<EOF
 ## NSD authoritative only DNS
 ## nsd.conf .:. https://calomel.org
 ## Primary or "Master" NSD server
@@ -63,13 +51,13 @@ for ((i = 0 ;  ; i++)); do
         break
     fi
 
-    cat > "${DIR_ETC_NSD}/nsd.conf" <<EOF
+    Config::AppendEtc "nsd/nsd.conf" <<EOF
 zone:
     name: ${domain}
     zonefile: ${domain}
 EOF
 
-    cat > "${DIR_ETC_NSD}/zones/${domain}" <<EOF
+    Config::WriteEtc "nsd/zones/${domain}" <<EOF
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 \$ORIGIN ${domain}.
@@ -87,7 +75,6 @@ ns1     CNAME   ${dyndns}.
 *       CNAME   ${dyndns}.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 EOF
 
 done

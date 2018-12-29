@@ -30,3 +30,47 @@ Config::Get() {
 if [[ -z "${_Config_JSON_}" ]]; then
     _Config_JSON_="$(Config::Load "${DIR_ROOT}/config/mypi.yml")"
 fi
+
+_Config_ROOT_="$(Config::Get ".config.root")"
+
+if [[ -z "${_Config_ROOT_}" ]]; then
+    exit 1
+fi
+if [[ ! -d "${_Config_ROOT_}" ]]; then
+    exit 1
+fi
+
+Config::GetRoot() {
+    echo "${_Config_ROOT_}"
+}
+
+Config::GetEtc() {
+    echo "${_Config_ROOT_}/etc/${1}"
+}
+
+Config::WriteEtc() {
+    local FILENAME
+    local DIRNAME
+    FILENAME="$(Config::GetEtc "${1}")"
+    DIRNAME="$(dirname "${FILENAME}")"
+    mkdir -p "${DIRNAME}"
+    cat > "${FILENAME}"
+}
+
+Config::AppendEtc() {
+    local FILENAME
+    local DIRNAME
+    FILENAME="$(Config::GetEtc "${1}")"
+    DIRNAME="$(dirname "${FILENAME}")"
+    mkdir -p "${DIRNAME}"
+    cat >> "${FILENAME}"
+}
+
+Config::WriteEtcStripped() {
+    local FILENAME
+    local DIRNAME
+    FILENAME="$(Config::GetEtc "${1}")"
+    DIRNAME="$(dirname "${FILENAME}")"
+    mkdir -p "${DIRNAME}"
+    cat | grep -v "^ *#" | grep -v "^ *$" > "${FILENAME}"
+}

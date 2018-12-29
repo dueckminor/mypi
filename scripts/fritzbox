@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/fritzbox.sh"
+
+FritzBox::Login
+FritzBox::GetMyFritz

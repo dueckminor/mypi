@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+dyndns="$(Config::Get ".config.dyndns")"
+if [[ -z "${dyndns}" ]]; then
+    exit 1
+fi
+
+DOMAIN="$(Config::Get ".config.domains[0]")"
+if [[ -z "${HOSTNAME}" ]]; then
+  DOMAIN="${dyndns}"
+fi
+
+Config::WriteEtcStripped "mosquitto/mosquitto.conf" <<EOF
+# port 1883
+
+port 8883
+certfile /etc/letsencrypt/live/${DOMAIN}/cert.pem
+cafile   /etc/letsencrypt/live/${DOMAIN}/chain.pem
+keyfile  /etc/letsencrypt/live/${DOMAIN}/privkey.pem
+
+#persistence_file mosquitto.db
+#log_dest syslog
+log_dest stdout
+log_dest topic
+log_type error
+log_type warning
+log_type notice
+log_type information
+connection_messages true
+log_timestamp true
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+EOF

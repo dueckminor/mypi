@@ -66,4 +66,6 @@ WORKDIR $GOPATH
 
 RUN apk add --no-cache gcc git musl-dev
 
+RUN go get -u github.com/golang/dep/cmd/dep && rm -rf /go/src
+
 # RUN go get -u github.com/derekparker/delve/cmd/dlv

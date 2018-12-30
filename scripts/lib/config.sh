@@ -31,16 +31,19 @@ if [[ -z "${_Config_JSON_}" ]]; then
     _Config_JSON_="$(Config::Load "${DIR_ROOT}/config/mypi.yml")"
 fi
 
-_Config_ROOT_="$(Config::Get ".config.root")"
-
-if [[ -z "${_Config_ROOT_}" ]]; then
-    exit 1
-fi
-if [[ ! -d "${_Config_ROOT_}" ]]; then
-    exit 1
-fi
+_Config_ROOT_=""
 
 Config::GetRoot() {
+    if [[ -n "${_Config_ROOT_}" ]]; then
+        echo "${_Config_ROOT_}"
+    fi
+    _Config_ROOT_="$(Config::Get ".config.root")"
+    if [[ -z "${_Config_ROOT_}" ]]; then
+        exit 1
+    fi
+    if [[ ! -d "${_Config_ROOT_}" ]]; then
+        exit 1
+    fi
     echo "${_Config_ROOT_}"
 }
 

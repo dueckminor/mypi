@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/docker.sh"
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+IT="-t"
+
+if [[ "${1}" == "-it" ]]; then
+    IT="-it"
+    shift
+fi
+
+docker run "${IT}"                                                             \
+    -v /var/run/docker.sock:/var/run/docker.sock                               \
+    -v /var/lib/docker:/var/lib/docker                                         \
+    -v "$(Config::GetRoot):$(Config::GetRoot)"                                 \
+    "$(Docker::ImageName tools-docker)"                                        \
+    "$@"

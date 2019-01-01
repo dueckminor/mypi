@@ -99,3 +99,9 @@ Docker::Start() {
         docker run -d --name "${NAME}" "$@"
     fi
 }
+
+Docker::Stop() {
+    if [[ "true" == "$(Docker::Status "${1}")" ]]; then
+        docker stop "${1}"
+    fi
+}

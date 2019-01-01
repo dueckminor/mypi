@@ -9,3 +9,4 @@ source "${DIR_ROOT}/scripts/lib/config.sh"
 Docker::ImageCreate tools
 Docker::ImageCreate tools-docker
 Docker::ImageCreate golang
+Docker::ImageCreate mypi-api

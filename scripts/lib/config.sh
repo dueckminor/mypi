@@ -48,7 +48,7 @@ Config::GetRoot() {
 }
 
 Config::GetEtc() {
-    echo "${_Config_ROOT_}/etc/${1}"
+    echo "$(Config::GetRoot)/etc/${1}"
 }
 
 Config::WriteEtc() {

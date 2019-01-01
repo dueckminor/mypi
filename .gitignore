@@ -2,3 +2,4 @@ vendor
 config
 .docker
 .tmp
+etc

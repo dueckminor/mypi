@@ -28,12 +28,24 @@ Service::Start() {
     done
 
     for ((i = 0 ;  ; i++)); do
+        ENV="$(Config::Get "${CFG}" ".service.env[${i}]")"
+        if [[ -z "${ENV}" ]]; then
+            break
+        fi
+        ARGS+=("--env" "${ENV}")
+    done
+
+    for ((i = 0 ;  ; i++)); do
         MOUNT="$(Config::Get "${CFG}" ".service.mount[${i}]")"
         if [[ -z "${MOUNT}" ]]; then
             break
         fi
-        mkdir -p "${INSTALL_ROOT}/${MOUNT}"
-        ARGS+=("-v" "${INSTALL_ROOT}/${MOUNT}:/${MOUNT}")
+        if [[ "${MOUNT}" =~ .*:.* ]]; then
+            ARGS+=("-v" "${INSTALL_ROOT}/${MOUNT}")
+        else
+            mkdir -p "${INSTALL_ROOT}/${MOUNT}"
+            ARGS+=("-v" "${INSTALL_ROOT}/${MOUNT}:/${MOUNT}")
+        fi
     done
 
     Docker::Start "${SERVICE_NAME}" "${ARGS[@]}" "$(Docker::ImageName "${SERVICE_IMAGE}")"

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+PID=$(cat /var/run/nginx/nginx.pid)
+echo "Sending signal HUP to ${PID}"
+kill -HUP "${PID}"

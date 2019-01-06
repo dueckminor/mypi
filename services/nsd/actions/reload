@@ -9,4 +9,8 @@ source "${DIR_ROOT}/scripts/lib/service.sh"
 
 "${DIR_THIS}/create-config"
 
-Service::Start nsd
+if [[ "$(Docker::Status nsd)" == "true" ]]; then
+    Docker::Exec "nsd" "/services/nsd/hooks/reload"
+else
+    Service::Start nsd
+fi

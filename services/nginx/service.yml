@@ -4,6 +4,7 @@ service:
   mount:
   - etc/letsencrypt
   - etc/nginx/conf.d
+  - services/nginx/hooks
   ports:
   - 10080:80/tcp
   - 10443:443/tcp

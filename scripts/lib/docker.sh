@@ -51,17 +51,17 @@ Docker::ImageCreate()
     local DOCKERFILE="${DIR_DOCKER_BUILD}/.docker/${CPU}/Dockerfile"
     local TEMPLATE
  
-    TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
-    TEMPLATE="$(sed "s,@ALPINE@,alpine:3.8," <<< "${TEMPLATE}")"
-    TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
-    TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
-    if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
-        TEMPLATE="$("${DIR_DOCKER}/filter.sh" <<< "${TEMPLATE}")"
-    fi
-
-    echo "${TEMPLATE}" > "${DOCKERFILE}"
-
     pushd "${DIR_DOCKER_BUILD}" > /dev/null
+        TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
+        TEMPLATE="$(sed "s,@ALPINE@,alpine:3.8," <<< "${TEMPLATE}")"
+        TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
+        TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
+        if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
+            TEMPLATE="$("${DIR_DOCKER}/filter.sh" <<< "${TEMPLATE}")"
+        fi
+
+        echo "${TEMPLATE}" > "${DOCKERFILE}"
+
         docker build . -f ".docker/${CPU}/Dockerfile" -t "$(Docker::ImageName ${SHORT_NAME})"
     popd > /dev/null
 
@@ -98,6 +98,24 @@ Docker::Start() {
         echo docker run -d --name "${NAME}" "$@"
         docker run -d --name "${NAME}" "$@"
     fi
+}
+
+Docker::Run() {
+    local NAME="${1}"
+    shift
+    docker run -t "$@"
+}
+
+Docker::Exec() {
+    local NAME="${1}"
+    shift
+    docker exec -t "${NAME}" "$@"
+}
+
+Docker::RunInteractive() {
+    local NAME="${1}"
+    shift
+    docker run -it "$@"
 }
 
 Docker::Stop() {

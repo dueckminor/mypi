@@ -7,11 +7,18 @@ source "${DIR_ROOT}/scripts/lib/docker.sh"
 
 INSTALL_ROOT="$(Config::GetRoot)"
 
-Service::Start() {
+
+
+
+Service::_Do_() {
+    local WHAT="${1}"
+    shift
     local SERVICE_NAME="${1}"
+    shift
     local ARGS
     local CFG
     local SERVICE_IMAGE
+    local i
 
     CFG="$(Config::Load "${DIR_ROOT}/services/${SERVICE_NAME}/service.yml")"
 
@@ -40,13 +47,31 @@ Service::Start() {
         if [[ -z "${MOUNT}" ]]; then
             break
         fi
-        if [[ "${MOUNT}" =~ .*:.* ]]; then
-            ARGS+=("-v" "${INSTALL_ROOT}/${MOUNT}")
+        if [[ "${MOUNT}" == *:* ]]; then
+            if [[ "${MOUNT}" == /* ]]; then
+                ARGS+=("-v" "${MOUNT}")
+            else
+                ARGS+=("-v" "${INSTALL_ROOT}/${MOUNT}")
+            fi
         else
-            mkdir -p "${INSTALL_ROOT}/${MOUNT}"
+            if [[ ! -e "${INSTALL_ROOT}/${MOUNT}" ]]; then
+                mkdir -p "${INSTALL_ROOT}/${MOUNT}"
+            fi
             ARGS+=("-v" "${INSTALL_ROOT}/${MOUNT}:/${MOUNT}")
         fi
     done
 
-    Docker::Start "${SERVICE_NAME}" "${ARGS[@]}" "$(Docker::ImageName "${SERVICE_IMAGE}")"
+    ${WHAT} "${SERVICE_NAME}" "${ARGS[@]}" "$(Docker::ImageName "${SERVICE_IMAGE}")" "$@"
+}
+
+Service::Start() {
+    Service::_Do_ "Docker::Start" "$@"
+}
+
+Service::Run() {
+    Service::_Do_ "Docker::Run" "$@"
+}
+
+Service::RunInteractive() {
+    Service::_Do_ "Docker::RunInteractive" "$@"
 }

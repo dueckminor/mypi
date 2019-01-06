@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+if [ -z "${CERTBOT_DOMAIN}" ]; then
+    echo "CERTBOT_DOMAIN is not set" >&2
+    exit 1
+fi
+
+DIR="/etc/letsencrypt/acme-challenge/${CERTBOT_DOMAIN}"
+
+rm -rf "${DIR}"

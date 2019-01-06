@@ -5,6 +5,7 @@ service:
   - etc/letsencrypt
   - etc/nsd
   - opt/letsencrypt
+  - services/nsd/hooks
   ports:
   - 10053:53/udp
   - 10053:53/tcp

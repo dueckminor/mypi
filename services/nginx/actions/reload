@@ -9,4 +9,8 @@ source "${DIR_ROOT}/scripts/lib/service.sh"
 
 "${DIR_THIS}/create-config"
 
-Service::Start nsd
+if [[ "$(Docker::Status nginx)" == "true" ]]; then
+    Docker::Exec "nginx" "/services/nginx/hooks/reload"
+else
+    Service::Start nginx
+fi

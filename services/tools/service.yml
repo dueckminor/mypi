@@ -1,0 +1,9 @@
+service:
+  image: tools-docker
+  depends: []
+  mount:
+  - etc
+  - /var/run/docker.sock:/run/docker.sock
+  - services
+  - config
+  - scripts

@@ -25,9 +25,15 @@ server_names_hash_bucket_size 64;
 server {
   listen 80 default_server;
   listen [::]:80 default_server;
-
   server_name _;
-  return 301 https://\$host\$request_uri;
+
+  location /.well-known/acme-challenge {
+    alias /etc/letsencrypt/acme-challenge/\$host;
+  }
+
+  location / {
+    return 301 https://\$host\$request_uri;
+  }
 }
 
 # just close the connection for https requests with an unused virtual-hostname

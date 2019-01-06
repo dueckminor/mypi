@@ -7,6 +7,6 @@ DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
 
 source "${DIR_ROOT}/scripts/lib/service.sh"
 
-# "${DIR_THIS}/create_config"
+# "${DIR_THIS}/create-config"
 
 Service::Start mqtt

@@ -51,6 +51,12 @@ Config::GetEtc() {
     echo "$(Config::GetRoot)/etc/${1}"
 }
 
+Config::ReadEtc() {
+    local FILENAME
+    FILENAME="$(Config::GetEtc "${1}")"
+    cat "${FILENAME}"
+}
+
 Config::WriteEtc() {
     local FILENAME
     local DIRNAME

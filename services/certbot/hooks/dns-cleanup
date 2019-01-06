@@ -1,0 +1,13 @@
+#!/bin/sh
+
+ZONE_FILE="/etc/nsd/zones/${CERTBOT_DOMAIN}"
+
+echo "----- dns-cleanup -----"
+NSD_ZONE="$(cat "${ZONE_FILE}")"
+NSD_ZONE="$(echo "${NSD_ZONE}" | sed "/; serial number/s/[0-9][0-9]*/$(date "+%s")/")"
+NSD_ZONE="$(echo "${NSD_ZONE}" | sed "/_acme-challeng/s/TXT .*/TXT NA/")"
+echo "${NSD_ZONE}"
+echo "${NSD_ZONE}" > "${ZONE_FILE}"
+echo "----- dns-cleanup -----"
+
+docker exec -t nsd "/services/nsd/hooks/reload"

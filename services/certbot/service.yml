@@ -1,0 +1,9 @@
+service:
+  image: certbot
+  depends: []
+  mount:
+  - etc/letsencrypt
+  - etc/nsd/zones
+  - /var/run/docker.sock:/run/docker.sock
+  - services/certbot/hooks
+  - config/pki/root_ca_cert.pem:/usr/local/share/ca-certificates/mypi.pem

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+FILENAME="$(echo "${CERTBOT_VALIDATION}" | sed "s/\..*//")"
+DIR="/etc/letsencrypt/acme-challenge/${CERTBOT_DOMAIN}"
+
+mkdir -p "${DIR}"
+
+echo "${CERTBOT_VALIDATION}" > "${DIR}/${FILENAME}"

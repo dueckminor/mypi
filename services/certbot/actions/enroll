@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/config.sh"
+source "${DIR_ROOT}/scripts/lib/service.sh"
+
+dyndns="$(Config::Get ".config.dyndns")"
+
+if [[ -n "${dyndns}" ]]; then
+    echo "Request certificate for: ${dyndns}"
+    echo
+    Service::Run certbot certonly\
+        --manual -n \
+        --preferred-challenges=http \
+        --email jochen@dueckminor.de \
+        --agree-tos \
+        --manual-public-ip-logging-ok \
+        -d "${dyndns}" \
+        --manual-auth-hook=/services/certbot/hooks/http-auth \
+        --manual-cleanup-hook=/services/certbot/hooks/http-cleanup
+fi
+
+for ((i = 0 ;  ; i++)); do
+echo "I: ${i}"
+    domain="$(Config::Get ".config.domains[${i}]")"
+    if [[ -z "${domain}" ]]; then
+        break
+    fi
+    echo "Request certificate for: *.${domain}"
+    echo
+    Service::Run certbot certonly\
+        --manual -n \
+        --preferred-challenges=dns \
+        --email jochen@dueckminor.de \
+        --agree-tos \
+        --manual-public-ip-logging-ok \
+        -d "*.${domain}" \
+        --manual-auth-hook=/services/certbot/hooks/dns-auth \
+        --manual-cleanup-hook=/services/certbot/hooks/dns-cleanup
+done

@@ -9,4 +9,4 @@ source "${DIR_ROOT}/scripts/lib/service.sh"
 
 "${DIR_THIS}/create-config"
 
-Service::Start mqtt -c /etc/mosquitto/mosquitto.conf
+Service::Start mqtt-int -c /etc/mosquitto/mosquitto.conf

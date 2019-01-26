@@ -61,6 +61,18 @@ server {
 }
 EOF
 
+Config::WriteEtc "nginx/conf.d/${dyndns}.conf" <<EOF
+server {
+  listen 443 ssl;
+  server_name          ${dyndns};
+  ssl_certificate      /etc/letsencrypt/live/${dyndns}/fullchain.pem;
+  ssl_certificate_key  /etc/letsencrypt/live/${dyndns}/privkey.pem;
+  location / {
+    proxy_pass http://192.168.0.1;
+  }
+}
+EOF
+
 mkdir -p "${DIR_ROOT}/etc/nginx/conf.d/pki"
 cp "${DIR_ROOT}/config/pki/tls_priv.pem" "${DIR_ROOT}/etc/nginx/conf.d/pki/tls_priv.pem"
 cat "${DIR_ROOT}/config/pki/tls_cert.pem" "${DIR_ROOT}/config/pki/root_ca_cert.pem" > "${DIR_ROOT}/etc/nginx/conf.d/pki/tls_cert.pem"

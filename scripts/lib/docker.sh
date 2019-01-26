@@ -123,3 +123,9 @@ Docker::Stop() {
         docker stop "${1}"
     fi
 }
+
+Docker::Rm() {
+    if docker inspect "${1}" &>/dev/null; then
+        docker rm -f "${1}"
+    fi
+}

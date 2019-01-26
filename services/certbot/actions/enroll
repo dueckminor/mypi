@@ -15,7 +15,6 @@ if [[ -n "${dyndns}" ]]; then
     Service::Run certbot certonly\
         --manual -n \
         --preferred-challenges=http \
-        --email jochen@dueckminor.de \
         --agree-tos \
         --manual-public-ip-logging-ok \
         -d "${dyndns}" \
@@ -34,7 +33,6 @@ echo "I: ${i}"
     Service::Run certbot certonly\
         --manual -n \
         --preferred-challenges=dns \
-        --email jochen@dueckminor.de \
         --agree-tos \
         --manual-public-ip-logging-ok \
         -d "*.${domain}" \

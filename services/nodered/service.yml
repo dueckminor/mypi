@@ -1,0 +1,6 @@
+service:
+  image: nodered
+  depends: []
+  mount: []
+  ports:
+  - 1880:1880/tcp

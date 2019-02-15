@@ -1,0 +1,34 @@
+FROM @OWNER@/@CPU@-nodejs
+
+# Experimental ARMv8 support for Node-RED
+
+# Home directory for Node-RED application source code.
+RUN mkdir -p /usr/src/node-red
+
+# User data directory, contains flows, config and nodes.
+RUN mkdir /data
+
+WORKDIR /usr/src/node-red
+
+# Add node-red user so we aren't running as root.
+RUN adduser -h /usr/src/node-red -D -H node-red
+
+# package.json contains Node-RED NPM module and node dependencies
+COPY package.json /usr/src/node-red/
+
+RUN apk add --no-cache --virtual .build-deps python2 make gcc g++ \
+    && npm install \
+    && npm install node-red-dashboard \
+    && apk del .build-deps \
+    && chown -R node-red:node-red /data \
+    && chown -R node-red:node-red /usr/src/node-red
+
+USER node-red
+
+# User configuration directory volume
+EXPOSE 1880
+
+# Environment variable holding file path for flows configuration
+ENV FLOWS=flows.json
+
+CMD ["npm", "start", "--", "--userDir", "/data"]

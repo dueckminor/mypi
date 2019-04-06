@@ -5,8 +5,9 @@ service:
   - etc/letsencrypt
   - etc/nginx/conf.d
   - services/nginx/hooks
+  - opt/ftp
   ports:
-  - 10080:80/tcp
-  - 10443:443/tcp
-  - 10444:444/tcp
-  - 443:20443/tcp
+  - 10080:10080/tcp
+  - 10443:10443/tcp
+  - 10444:10444/tcp
+  - 443:443/tcp

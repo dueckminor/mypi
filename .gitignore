@@ -3,3 +3,5 @@ config
 .docker
 .tmp
 etc
+data
+opt

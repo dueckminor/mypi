@@ -1,0 +1,8 @@
+service:
+  image: git-server
+  depends: []
+  mount:
+  - data/git-server/keys:/git-server/keys 
+  - data/git-server/repos:/git-server/repos
+  ports:
+  - 2222:22/tcp

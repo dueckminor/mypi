@@ -115,7 +115,7 @@ Docker::Exec() {
 Docker::RunInteractive() {
     local NAME="${1}"
     shift
-    docker run -it "$@"
+    docker run -it "${NAME}" "$@"
 }
 
 Docker::Stop() {
@@ -128,4 +128,12 @@ Docker::Rm() {
     if docker inspect "${1}" &>/dev/null; then
         docker rm -f "${1}"
     fi
+}
+
+Docker::Sh() {
+    local NAME="${1}"
+    shift
+
+    Docker::ImageCreateMissing "${NAME}"
+    Docker::RunInteractive "$(Docker::ImageName "${NAME}")" "$@"
 }

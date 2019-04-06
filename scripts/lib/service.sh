@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
+set -e
+
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/docker.sh"
 
 INSTALL_ROOT="$(Config::GetRoot)"
-
-
-
 
 Service::_Do_() {
     local WHAT="${1}"
@@ -61,6 +62,16 @@ Service::_Do_() {
         fi
     done
 
+    ARGS+=("--restart" "unless-stopped")
+
+    for ((i = 0 ;  ; i++)); do
+        ARG="$(Config::Get "${CFG}" ".service.dockerargs[${i}]")"
+        if [[ -z "${ARG}" ]]; then
+            break
+        fi
+        ARGS+=("${ARG}")
+    done
+
     ${WHAT} "${SERVICE_NAME}" "${ARGS[@]}" "$(Docker::ImageName "${SERVICE_IMAGE}")" "$@"
 }
 
@@ -74,4 +85,8 @@ Service::Run() {
 
 Service::RunInteractive() {
     Service::_Do_ "Docker::RunInteractive" "$@"
+}
+
+Service::Stop() {
+    Docker::Stop "${1}"
 }

@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+Config::WriteEtcStripped "vsftpd/vsftpd.conf" <<EOF
+anonymous_enable=NO
+dirmessage_enable=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+xferlog_file=/dev/stdout
+listen=YES
+local_enable=YES
+chroot_local_user=YES
+allow_writeable_chroot=YES
+write_enable=YES
+local_umask=022
+passwd_chroot_enable=yes
+seccomp_sandbox=NO
+pasv_enable=Yes
+pasv_max_port=10100
+pasv_min_port=10090
+EOF

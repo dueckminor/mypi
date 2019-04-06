@@ -4,6 +4,7 @@ set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
 dyndns="$(Config::Get ".config.dyndns")"
@@ -23,8 +24,7 @@ server_names_hash_bucket_size 64;
 
 # redirect every http connect to https
 server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
+  listen 10080 default_server;
   server_name _;
 
   location /.well-known/acme-challenge {
@@ -38,7 +38,7 @@ server {
 
 # just close the connection for https requests with an unused virtual-hostname
 server {
-  listen 443 ssl;
+  listen 10443 ssl;
   server_name _;
   ssl_certificate      /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
   ssl_certificate_key  /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
@@ -51,7 +51,7 @@ EOF
 
 Config::WriteEtc "nginx/conf.d/fritzbox.${DOMAIN}.conf" <<EOF
 server {
-  listen 443 ssl;
+  listen 10443 ssl;
   server_name          fritzbox.${DOMAIN};
   ssl_certificate      /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
   ssl_certificate_key  /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
@@ -63,7 +63,7 @@ EOF
 
 Config::WriteEtc "nginx/conf.d/${dyndns}.conf" <<EOF
 server {
-  listen 443 ssl;
+  listen 10443 ssl;
   server_name          ${dyndns};
   ssl_certificate      /etc/letsencrypt/live/${dyndns}/fullchain.pem;
   ssl_certificate_key  /etc/letsencrypt/live/${dyndns}/privkey.pem;
@@ -79,12 +79,17 @@ cat "${DIR_ROOT}/config/pki/tls_cert.pem" "${DIR_ROOT}/config/pki/root_ca_cert.p
 
 Config::WriteEtc "nginx/conf.d/${HOSTNAME}.conf" <<EOF
 server {
-  listen 20443 ssl;
+  listen 443 ssl;
   server_name          ${HOSTNAME};
   ssl_certificate      /etc/nginx/conf.d/pki/tls_cert.pem;
   ssl_certificate_key  /etc/nginx/conf.d/pki/tls_priv.pem;
-  location / {
-    proxy_pass http://172.17.0.1:8080;
+  location /ftp/ {
+    autoindex on;
+    root /opt;
+  }
+  location /stream {
+    include /etc/nginx/fastcgi_params;
+    fastcgi_pass 172.17.0.1:20042;
   }
 }
 EOF

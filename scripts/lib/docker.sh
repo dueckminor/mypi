@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
 SYS="$(uname -s | awk '{print tolower($0)}')"
 CPU="$(uname -m | awk '{print tolower($0)}')"
@@ -31,6 +33,7 @@ Docker::ImageIsAvailable()
 Docker::ImageCreate()
 {
     local SHORT_NAME="${1}"
+    shift
     local DIR_DOCKER="${DIR_ROOT}/docker/${SHORT_NAME}"
     local DIR_DOCKER_BUILD="${DIR_DOCKER}"
 
@@ -53,7 +56,7 @@ Docker::ImageCreate()
  
     pushd "${DIR_DOCKER_BUILD}" > /dev/null
         TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
-        TEMPLATE="$(sed "s,@ALPINE@,alpine:3.8," <<< "${TEMPLATE}")"
+        TEMPLATE="$(sed "s,@ALPINE@,alpine:3.9," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
         if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
@@ -62,7 +65,9 @@ Docker::ImageCreate()
 
         echo "${TEMPLATE}" > "${DOCKERFILE}"
 
-        docker build . -f ".docker/${CPU}/Dockerfile" -t "$(Docker::ImageName ${SHORT_NAME})"
+    echo "$@"
+
+        docker build . -f ".docker/${CPU}/Dockerfile" "${@}" -t "$(Docker::ImageName ${SHORT_NAME})"
     popd > /dev/null
 
     true

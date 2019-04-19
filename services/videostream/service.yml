@@ -1,0 +1,6 @@
+service:
+  image: videostream
+  depends: []
+  mount: []
+  ports:
+  - 20080:10080/tcp

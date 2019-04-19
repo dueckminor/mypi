@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+URL="$(Config::Get ".config.webcams[0].url")"
+
+Config::WriteEtc "motion/camera1.conf" <<EOF
+###########################################################
+# Configuration options specific to camera 1
+############################################################
+# User defined name for the camera.
+camera_name MyCam1
+
+# Numeric identifier for the camera.
+camera_id 101
+
+# The full URL of the network camera stream.
+netcam_url ${URL}
+
+# Image width in pixels.
+width 640
+
+# Image height in pixels.
+height 360
+
+# Text to be overlayed in the lower left corner of images
+text_left CAMERA 1
+
+# File name(without extension) for movies relative to target directory
+movie_filename CAM01_%t-%v-%Y%m%d%H%M%S
+EOF

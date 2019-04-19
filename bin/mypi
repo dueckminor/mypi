@@ -86,17 +86,21 @@ if (( $# < 3 )); then
     usage
 fi
 
-case "${1}-${3}" in
+TYPE="${1}"
+shift
+NAME="${1}"
+shift
+ACTION="${1}"
+shift
+
+case "${TYPE}-${ACTION}" in
 docker-build)
-    "${DIR_ROOT}/scripts/docker-build" "${2}"
+    "${DIR_ROOT}/scripts/docker-build" "${NAME}" "$@"
     ;;
 docker-sh)
-    NAME=${2}
-    shift
-    shift 
     "${DIR_ROOT}/scripts/docker-sh" "${NAME}" "$@"
     ;;
 service-*)
-    "${DIR_ROOT}/services/${2}/actions/${3}"
+    "${DIR_ROOT}/services/${NAME}/actions/${ACTION}" "$@"
     ;;
 esac

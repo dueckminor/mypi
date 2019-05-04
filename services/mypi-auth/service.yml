@@ -1,0 +1,7 @@
+service:
+  image: mypi-auth
+  depends: []
+  mount:
+  - etc/nginx/cookies
+  ports:
+  - 30000:8080/tcp

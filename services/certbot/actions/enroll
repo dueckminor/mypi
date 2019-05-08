@@ -9,8 +9,6 @@ DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 source "${DIR_ROOT}/scripts/lib/config.sh"
 source "${DIR_ROOT}/scripts/lib/service.sh"
 
-docker ps | grep certbot | awk '{print $1}' | xargs -r docker kill 
-
 dyndns="$(Config::Get ".config.dyndns")"
 
 if [[ -n "${dyndns}" ]]; then
@@ -31,7 +29,7 @@ if [[ -n "${dyndns}" ]]; then
 fi
 
 for ((i = 0 ;  ; i++)); do
-    domain="$(Config::Get ".config.domains[${i}]")"
+    domain="$(Config::Get ".config.domains[${i}].name")"
     if [[ -z "${domain}" ]]; then
         break
     fi
@@ -50,5 +48,3 @@ for ((i = 0 ;  ; i++)); do
         --manual-auth-hook=/services/certbot/hooks/dns-auth \
         --manual-cleanup-hook=/services/certbot/hooks/dns-cleanup
 done
-
-docker ps | grep certbot | awk '{print $1}' | xargs -r docker kill

@@ -46,7 +46,7 @@ server:
 EOF
 
 for ((i = 0 ;  ; i++)); do
-    domain="$(Config::Get ".config.domains[${i}]")"
+    domain="$(Config::Get ".config.domains[${i}].name")"
     if [[ -z "${domain}" ]]; then
         break
     fi

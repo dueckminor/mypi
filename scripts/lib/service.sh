@@ -62,7 +62,9 @@ Service::_Do_() {
         fi
     done
 
-    ARGS+=("--restart" "unless-stopped")
+    if [[ "${WHAT}" == "Docker::Start" ]]; then
+        ARGS+=("--restart" "unless-stopped")
+    fi
 
     for ((i = 0 ;  ; i++)); do
         ARG="$(Config::Get "${CFG}" ".service.dockerargs[${i}]")"

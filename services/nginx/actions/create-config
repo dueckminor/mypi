@@ -15,15 +15,18 @@ if [[ -z "${dyndns}" ]]; then
 fi
 
 HOSTNAME="$(Config::Get ".config.hostname")"
+LOCAL_IP="172.17.0.1"
 
-DOMAIN="$(Config::Get ".config.domains[0]")"
+DOMAIN="$(Config::Get ".config.domains[0].name")"
 if [[ -z "${HOSTNAME}" ]]; then
   DOMAIN="${dyndns}"
 fi
 
-TLS_CONFIG="listen 10443 ssl;
-  ssl_certificate      /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
-  ssl_certificate_key  /etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+TLS_CONFIG() {
+  echo "listen 10443 ssl;"
+  echo "  ssl_certificate      /etc/letsencrypt/live/${1}/fullchain.pem;"
+  echo "  ssl_certificate_key  /etc/letsencrypt/live/${1}/privkey.pem"
+}
 
 Config::WriteEtc "nginx/conf.d/default.conf" <<EOF
 server_names_hash_bucket_size 64;
@@ -45,7 +48,7 @@ server {
 # just close the connection for https requests with an unused virtual-hostname
 server {
   server_name _;
-  ${TLS_CONFIG};
+  $(TLS_CONFIG "${DOMAIN}");
   location / {
     # 444 is a magic response code which tells nginx, just to close the connection
     return 444;
@@ -53,20 +56,10 @@ server {
 }
 EOF
 
-Config::WriteEtc "nginx/conf.d/fritzbox.${DOMAIN}.conf" <<EOF
-server {
-  server_name          fritzbox.${DOMAIN};
-  ${TLS_CONFIG};
-  location / {
-    proxy_pass http://192.168.0.1;
-  }
-}
-EOF
-
 Config::WriteEtc "nginx/conf.d/${dyndns}.conf" <<EOF
 server {
   server_name          ${dyndns};
-  ${TLS_CONFIG};
+  $(TLS_CONFIG "${DOMAIN}");
   location / {
     proxy_pass http://192.168.0.1;
   }
@@ -75,18 +68,15 @@ EOF
 
 for ((i = 0 ;  ; i++)); do
   webcam="$(Config::Get ".config.webcams[${i}]")"
-  if [[ -z "${webcam}" ]]; then
-    break
-  fi
+  if [[ -z "${webcam}" ]]; then break; fi
   name="$(Config::Get "${webcam}" ".name")"
-#  url="$(Config::Get "${webcam}" ".name")"
 
   Config::WriteEtc "nginx/conf.d/webcam-${i}.${DOMAIN}.conf" <<EOF
 server {
   server_name          ${name}.${DOMAIN};
-  ${TLS_CONFIG};
+  $(TLS_CONFIG "${DOMAIN}");
   location / {
-    proxy_pass http://172.17.0.1:20080/;
+    proxy_pass http://${LOCAL_IP}:20080/;
   }
 }
 EOF
@@ -110,10 +100,30 @@ server {
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
-    proxy_pass http://172.17.0.1:1880;
+    proxy_pass http://${LOCAL_IP}:1880;
   }
 }
 EOF
+
+for ((i = 0 ;  ; i++)); do
+  DOMAIN="$(Config::Get ".config.domains[${i}].name")"
+  if [[ -z "${DOMAIN}" ]]; then break; fi
+  for ((j = 0 ;  ; j++)); do
+    HOST="$(Config::Get ".config.domains[${i}].hosts[${j}].name")"
+    ADDRESS="$(Config::Get ".config.domains[${i}].hosts[${j}].address")"
+    if [[ -z "${HOST}" || -z "${ADDRESS}" ]]; then break; fi
+      Config::WriteEtc "nginx/conf.d/${HOST}.${DOMAIN}.conf" <<EOF
+server {
+  server_name          ${HOST}.${DOMAIN};
+  $(TLS_CONFIG "${DOMAIN}");
+  location / {
+    proxy_pass ${ADDRESS};
+    proxy_redirect ${ADDRESS}/ https://${HOST}.${DOMAIN}/;
+  }
+}
+EOF
+  done
+done
 
 # delete all config files which have not been created from this script
 find "${DIR_ROOT}/etc/nginx/conf.d/"         \

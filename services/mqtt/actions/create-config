@@ -11,7 +11,7 @@ if [[ -z "${dyndns}" ]]; then
     exit 1
 fi
 
-DOMAIN="$(Config::Get ".config.domains[0]")"
+DOMAIN="$(Config::Get ".config.domains[0].name")"
 if [[ -z "${HOSTNAME}" ]]; then
   DOMAIN="${dyndns}"
 fi

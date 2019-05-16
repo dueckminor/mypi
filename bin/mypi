@@ -44,7 +44,7 @@ _mypi_completion()
     if [[ \$COMP_CWORD == 3 ]]; then
         case "\${COMP_WORDS[1]}" in
             docker)
-                _mypi_add_compgen "build sh"
+                _mypi_add_compgen "build rebuild sh"
                 ;;
         esac
     fi
@@ -96,6 +96,9 @@ shift
 case "${TYPE}-${ACTION}" in
 docker-build)
     "${DIR_ROOT}/scripts/docker-build" "${NAME}" "$@"
+    ;;
+docker-rebuild)
+    "${DIR_ROOT}/scripts/docker-build" "${NAME}" "$@" --no-cache
     ;;
 docker-sh)
     "${DIR_ROOT}/scripts/docker-sh" "${NAME}" "$@"

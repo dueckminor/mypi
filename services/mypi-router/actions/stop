@@ -6,7 +6,5 @@ DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/config.sh"
 
-Service::Start mypi-auth --mypi-root=/opt/mypi --port=8080
+Service::Stop mypi-auth

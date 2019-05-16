@@ -2,6 +2,8 @@ service:
   image: mypi-auth
   depends: []
   mount:
-  - etc/nginx/cookies
+  - config/mypi.yml:/opt/mypi/config/mypi.yml
+  - etc/auth:/opt/mypi/etc/auth
+  - etc/users.yml:/opt/mypi/etc/users.yml
   ports:
   - 30000:8080/tcp

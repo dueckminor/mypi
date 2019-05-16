@@ -28,7 +28,15 @@ TLS_CONFIG() {
   echo "  ssl_certificate_key  /etc/letsencrypt/live/${1}/privkey.pem"
 }
 
-Config::WriteEtc "nginx/conf.d/default.conf" <<EOF
+SEQUENCE_COUNTER=0
+GET_SEQENCE() {
+  printf "%05d" "${SEQUENCE_COUNTER}"
+}
+NEXT_SEQUENCE() {
+  SEQUENCE_COUNTER=$((SEQUENCE_COUNTER + 1))
+}
+
+Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_default.conf" <<EOF
 server_names_hash_bucket_size 64;
 
 # redirect every http connect to https
@@ -55,8 +63,9 @@ server {
   }
 }
 EOF
+NEXT_SEQUENCE
 
-Config::WriteEtc "nginx/conf.d/${dyndns}.conf" <<EOF
+Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${dyndns}.conf" <<EOF
 server {
   server_name          ${dyndns};
   $(TLS_CONFIG "${DOMAIN}");
@@ -65,13 +74,14 @@ server {
   }
 }
 EOF
+NEXT_SEQUENCE
 
 for ((i = 0 ;  ; i++)); do
   webcam="$(Config::Get ".config.webcams[${i}]")"
   if [[ -z "${webcam}" ]]; then break; fi
   name="$(Config::Get "${webcam}" ".name")"
 
-  Config::WriteEtc "nginx/conf.d/webcam-${i}.${DOMAIN}.conf" <<EOF
+  Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_webcam-${i}.${DOMAIN}.conf" <<EOF
 server {
   server_name          ${name}.${DOMAIN};
   $(TLS_CONFIG "${DOMAIN}");
@@ -80,13 +90,14 @@ server {
   }
 }
 EOF
+  NEXT_SEQUENCE
 done
 
 mkdir -p "${DIR_ROOT}/etc/nginx/conf.d/pki"
 cp "${DIR_ROOT}/config/pki/tls_priv.pem" "${DIR_ROOT}/etc/nginx/conf.d/pki/tls_priv.pem"
 cat "${DIR_ROOT}/config/pki/tls_cert.pem" "${DIR_ROOT}/config/pki/root_ca_cert.pem" > "${DIR_ROOT}/etc/nginx/conf.d/pki/tls_cert.pem"
 
-Config::WriteEtc "nginx/conf.d/${HOSTNAME}.conf" <<EOF
+Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOSTNAME}.conf" <<EOF
 server {
   listen 443 ssl;
   server_name          ${HOSTNAME};
@@ -104,6 +115,7 @@ server {
   }
 }
 EOF
+NEXT_SEQUENCE
 
 for ((i = 0 ;  ; i++)); do
   DOMAIN="$(Config::Get ".config.domains[${i}].name")"
@@ -112,16 +124,19 @@ for ((i = 0 ;  ; i++)); do
     HOST="$(Config::Get ".config.domains[${i}].hosts[${j}].name")"
     ADDRESS="$(Config::Get ".config.domains[${i}].hosts[${j}].address")"
     if [[ -z "${HOST}" || -z "${ADDRESS}" ]]; then break; fi
-      Config::WriteEtc "nginx/conf.d/${HOST}.${DOMAIN}.conf" <<EOF
+      Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
 server {
   server_name          ${HOST}.${DOMAIN};
   $(TLS_CONFIG "${DOMAIN}");
   location / {
     proxy_pass ${ADDRESS};
     proxy_redirect ${ADDRESS}/ https://${HOST}.${DOMAIN}/;
+    proxy_set_header X-Forwarded-Host ${HOST}.${DOMAIN};
+    proxy_set_header X-Forwarded-Proto \$scheme;
   }
 }
 EOF
+    NEXT_SEQUENCE
   done
 done
 

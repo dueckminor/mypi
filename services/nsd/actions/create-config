@@ -61,14 +61,14 @@ EOF
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 \$ORIGIN ${domain}.
-\$TTL 86400
+\$TTL 60
 
 @ IN SOA ns1.${domain}. admin.${domain}. (
         $(date "+%s")  ; serial number
         28800       ; Refresh
         7200        ; Retry
-        864000      ; Expire
-        86400       ; Min TTL
+        600         ; Expire  (10 Minutes)
+        60          ; Min TTL (1 Minute)
 )
         NS      ns1.${domain}.
 ns1     CNAME   ${dyndns}.

@@ -9,12 +9,15 @@ CPU="$(uname -m | awk '{print tolower($0)}')"
 case "${CPU}" in
 x86_64) 
     CPU=amd64
+    GOARCH=amd64
     ;;
 aarch64)
     CPU=aarch64
+    GOARCH=arm64
     ;;
 armv7l) 
     CPU=arm32v6
+    GOARCH=arm
     ;;
 esac
 
@@ -58,6 +61,7 @@ Docker::ImageCreate()
         TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
         TEMPLATE="$(sed "s,@ALPINE@,alpine:3.9," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
+        TEMPLATE="$(sed "s,@GOARCH@,${GOARCH}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
         if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
             TEMPLATE="$("${DIR_DOCKER}/filter.sh" <<< "${TEMPLATE}")"

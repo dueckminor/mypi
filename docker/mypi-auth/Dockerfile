@@ -1,11 +1,15 @@
-FROM @OWNER@/@CPU@-golang AS builder
+FROM @OWNER@/@CPU@-builder AS builder
 
 RUN go get github.com/dueckminor/mypi-auth
 
-FROM @OWNER@/@CPU@-ffmpeg
+WORKDIR /go/src/github.com/dueckminor/mypi-auth
+RUN npm install
+RUN npm run build
+
+FROM @ALPINE@
 
 COPY --from=builder /go/bin/mypi-auth /usr/local/bin/mypi-auth
-COPY --from=builder /go/src/github.com/dueckminor/mypi-auth/web /usr/local/web/
+COPY --from=builder /go/src/github.com/dueckminor/mypi-auth/dist /usr/local/dist/
 
 WORKDIR /usr/local
 

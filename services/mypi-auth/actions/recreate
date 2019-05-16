@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
+
+docker stop mypi-auth || true
+docker rm mypi-auth || true
+
+"${DIR_THIS}/start" "$@"

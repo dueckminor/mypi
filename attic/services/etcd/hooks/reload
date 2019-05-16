@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "Sending signal HUP to etcd"
+killall -HUP etcd

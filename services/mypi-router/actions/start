@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/service.sh"
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+DOMAIN="$(Config::Get ".config.domains[0].name")"
+if [[ -z "${HOSTNAME}" ]]; then
+  DOMAIN="${dyndns}"
+fi
+
+Service::Start mypi-router \
+    --auth="https://auth.${DOMAIN}" \
+    --target=http://fritz.box \
+    --port=8080 \
+    --client-id=mypi-router \
+    --mypi-root=/opt/mypi

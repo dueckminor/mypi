@@ -1,8 +1,8 @@
 service:
   image: vsftpd
   depends: []
-  dockerargs: ["--network","host"]
+  dockerargs: ["--network","host", "-e", "PASSWORD=secret"]
   mount:
   - etc/vsftpd
   - opt/ftp:/home/files
-  ports: []
+  ports: [] # no ports exported, as we use `--network host`

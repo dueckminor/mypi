@@ -5,3 +5,4 @@ service:
   - etc/mosquitto-int:/etc/mosquitto
   ports:
   - 8883:8883/tcp
+  - 1883:1883/tcp

@@ -1,0 +1,7 @@
+service:
+  image: mypi-videostream
+  depends: []
+  mount:
+  - config/mypi.yml:/opt/mypi/config/mypi.yml
+  - opt/ftp
+  ports: []

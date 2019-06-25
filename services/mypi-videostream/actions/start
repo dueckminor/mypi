@@ -9,6 +9,4 @@ source "${DIR_ROOT}/scripts/lib/service.sh"
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
-URL="$(Config::Get ".config.webcams[0].url")"
-
-Service::Start videostreamer -input "${URL}" -port 20042 -format rtsp
+Service::Start mypi-videostream --mypi-root=/opt/mypi

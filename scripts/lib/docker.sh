@@ -69,9 +69,14 @@ Docker::ImageCreate()
 
         echo "${TEMPLATE}" > "${DOCKERFILE}"
 
-    echo "$@"
-
-        docker build . -f ".docker/${CPU}/Dockerfile" "${@}" -t "$(Docker::ImageName ${SHORT_NAME})"
+        MYPI_GIT_REPO=$(grep "ENV MYPI_GIT_REPO=" <<< "${TEMPLATE}" | sed 's/ENV MYPI_GIT_REPO=//')
+        if [[ -n "${MYPI_GIT_REPO}" ]]; then
+            MYPI_GIT_COMMIT_ID="$(git ls-remote https://github.com/dueckminor/mypi-tools.git HEAD)"
+            MYPI_GIT_COMMIT_ID="$(sed 's/ .*//' <<< "${MYPI_GIT_COMMIT_ID}")"
+            docker build . -f ".docker/${CPU}/Dockerfile" "${@}" --build-arg "MYPI_GIT_COMMIT_ID=${MYPI_GIT_COMMIT_ID}" -t "$(Docker::ImageName "${SHORT_NAME}")"
+        else
+            docker build . -f ".docker/${CPU}/Dockerfile" "${@}" -t "$(Docker::ImageName "${SHORT_NAME}")"
+        fi
     popd > /dev/null
 
     true

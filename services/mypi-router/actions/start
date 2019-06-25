@@ -3,6 +3,7 @@
 set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
 
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
@@ -14,9 +15,13 @@ if [[ -z "${HOSTNAME}" ]]; then
   DOMAIN="${dyndns}"
 fi
 
+"${DIR_THIS}/create-config"
+
 Service::Start mypi-router \
     --auth="https://auth.${DOMAIN}" \
-    --target=http://fritz.box \
     --port=8080 \
     --client-id=mypi-router \
-    --mypi-root=/opt/mypi
+    --mypi-root=/opt/mypi \
+    /etc/mypi-router/router.yml
+
+#    --target=http://fritz.box \

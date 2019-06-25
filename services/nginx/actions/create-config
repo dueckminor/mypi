@@ -65,33 +65,16 @@ server {
 EOF
 NEXT_SEQUENCE
 
-Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${dyndns}.conf" <<EOF
-server {
-  server_name          ${dyndns};
-  $(TLS_CONFIG "${DOMAIN}");
-  location / {
-    proxy_pass http://192.168.0.1;
-  }
-}
-EOF
-NEXT_SEQUENCE
-
-for ((i = 0 ;  ; i++)); do
-  webcam="$(Config::Get ".config.webcams[${i}]")"
-  if [[ -z "${webcam}" ]]; then break; fi
-  name="$(Config::Get "${webcam}" ".name")"
-
-  Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_webcam-${i}.${DOMAIN}.conf" <<EOF
-server {
-  server_name          ${name}.${DOMAIN};
-  $(TLS_CONFIG "${DOMAIN}");
-  location / {
-    proxy_pass http://${LOCAL_IP}:20080/;
-  }
-}
-EOF
-  NEXT_SEQUENCE
-done
+# Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${dyndns}.conf" <<EOF
+# server {
+#   server_name          ${dyndns};
+#   $(TLS_CONFIG "${DOMAIN}");
+#   location / {
+#     proxy_pass http://192.168.0.1;
+#   }
+# }
+# EOF
+# NEXT_SEQUENCE
 
 mkdir -p "${DIR_ROOT}/etc/nginx/conf.d/pki"
 cp "${DIR_ROOT}/config/pki/tls_priv.pem" "${DIR_ROOT}/etc/nginx/conf.d/pki/tls_priv.pem"
@@ -122,15 +105,22 @@ for ((i = 0 ;  ; i++)); do
   if [[ -z "${DOMAIN}" ]]; then break; fi
   for ((j = 0 ;  ; j++)); do
     HOST="$(Config::Get ".config.domains[${i}].hosts[${j}].name")"
-    ADDRESS="$(Config::Get ".config.domains[${i}].hosts[${j}].address")"
-    if [[ -z "${HOST}" || -z "${ADDRESS}" ]]; then break; fi
-      Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
+    URI="$(Config::Get ".config.domains[${i}].hosts[${j}].uri")"
+    if [[ -z "${HOST}" || -z "${URI}" ]]; then break; fi
+    ROUTER_URI="$(Config::Get ".config.domains[${i}].hosts[${j}].router.uri")"
+    if [[ -n ${ROUTER_URI} ]]; then
+      URI="${ROUTER_URI}"
+    fi
+    Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
 server {
   server_name          ${HOST}.${DOMAIN};
   $(TLS_CONFIG "${DOMAIN}");
   location / {
-    proxy_pass ${ADDRESS};
-    proxy_redirect ${ADDRESS}/ https://${HOST}.${DOMAIN}/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_pass ${URI};
+    proxy_redirect ${URI}/ https://${HOST}.${DOMAIN}/;
     proxy_set_header X-Forwarded-Host ${HOST}.${DOMAIN};
     proxy_set_header X-Forwarded-Proto \$scheme;
   }
@@ -139,6 +129,20 @@ EOF
     NEXT_SEQUENCE
   done
 done
+
+HOST=pwa
+DOMAIN="$(Config::Get ".config.domains[0].name")"
+Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
+server {
+  server_name          ${HOST}.${DOMAIN};
+  $(TLS_CONFIG "${DOMAIN}");
+  location / {
+    root /opt/ftp/pwa/;
+    index index.html index.htm;
+  }
+}
+EOF
+NEXT_SEQUENCE
 
 # delete all config files which have not been created from this script
 find "${DIR_ROOT}/etc/nginx/conf.d/"         \

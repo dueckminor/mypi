@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+(
+  echo "routes:"
+  for ((i = 0 ;  ; i++)); do
+    DOMAIN="$(Config::Get ".config.domains[${i}].name")"
+    if [[ -z "${DOMAIN}" ]]; then break; fi
+    for ((j = 0 ;  ; j++)); do
+      HOST="$(Config::Get ".config.domains[${i}].hosts[${j}].name")"
+      if [[ -z "${HOST}" ]]; then break; fi
+      URI="$(Config::Get ".config.domains[${i}].hosts[${j}].uri")"
+      ROUTER="$(Config::Get ".config.domains[${i}].hosts[${j}].router")"
+      if [[ -z ${ROUTER} || -z "${URI}" ]]; then continue; fi
+      echo "- hostname: ${HOST}.${DOMAIN}"
+      echo "  target: ${URI}"
+      HEADERS="$(Config::Get "${ROUTER}" ".headers" )"
+      if [[ -n "${HEADERS}" ]]; then echo "  headers: ${HEADERS}"; fi
+    done
+  done
+) | Config::WriteEtc "mypi-router/router.yml"

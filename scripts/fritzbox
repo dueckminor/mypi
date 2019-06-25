@@ -4,7 +4,9 @@ set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/fritzbox.sh"
 
-FritzBox::Login
+FritzBox::Login "${1}" "${2}"
 FritzBox::GetMyFritz
+FritzBox::GetExternalIP

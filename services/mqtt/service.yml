@@ -5,5 +5,4 @@ service:
   - etc/letsencrypt
   - etc/mosquitto
   ports:
-  - 11883:1883/tcp
   - 18883:8883/tcp

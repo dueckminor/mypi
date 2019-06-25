@@ -4,27 +4,24 @@ set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
-dyndns="$(Config::Get ".config.dyndns")"
-if [[ -z "${dyndns}" ]]; then
-    exit 1
-fi
-
-DOMAIN="$(Config::Get ".config.domains[0].name")"
-if [[ -z "${HOSTNAME}" ]]; then
-  DOMAIN="${dyndns}"
-fi
-
 mkdir -p "${DIR_ROOT}/etc/mosquitto-int"
-cp "${DIR_ROOT}/config/pki/tls_priv.pem" "${DIR_ROOT}/etc/mosquitto-int/tls_priv.pem"
-cp "${DIR_ROOT}/config/pki/tls_cert.pem" "${DIR_ROOT}/etc/mosquitto-int/"
 cp "${DIR_ROOT}/config/pki/root_ca_cert.pem" "${DIR_ROOT}/etc/mosquitto-int/"
 
-Config::WriteEtcStripped "mosquitto-int/mosquitto.conf" <<EOF
-#port 1883
+if [[ ! -f "${DIR_ROOT}/etc/mosquitto-int/tls_priv.pem" ]]; then
+  openssl genrsa -out "${DIR_ROOT}/etc/mosquitto-int/tls_priv.pem" 2048
+fi
 
-port 8883
+if [[ ! -f "${DIR_ROOT}/etc/mosquitto-int/tls_cert.pem" ]]; then
+  true
+fi
+
+Config::WriteEtcStripped "mosquitto-int/mosquitto.conf" <<EOF
+port 1883
+
+listener 8883 0.0.0.0
 certfile /etc/mosquitto/tls_cert.pem
 keyfile  /etc/mosquitto/tls_priv.pem
 cafile /etc/mosquitto/root_ca_cert.pem

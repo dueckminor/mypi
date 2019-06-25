@@ -3,5 +3,5 @@ service:
   depends: []
   mount:
   - etc/auth/clients/mypi-router.yml:/opt/mypi/etc/auth/clients/mypi-router.yml
-  ports:
-  - 30001:8080/tcp
+  - etc/mypi-router
+  ports: []

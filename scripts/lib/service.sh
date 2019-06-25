@@ -27,6 +27,9 @@ Service::_Do_() {
 
     ARGS=()
 
+    ARGS+=("--network")
+    ARGS+=("mypi-net")
+
     for ((i = 0 ;  ; i++)); do
         PORT="$(Config::Get "${CFG}" ".service.ports[${i}]")"
         if [[ -z "${PORT}" ]]; then

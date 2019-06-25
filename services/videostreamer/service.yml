@@ -1,6 +1,0 @@
-service:
-  image: videostreamer
-  depends: []
-  mount: []
-  ports:
-  - 20042:20042/tcp

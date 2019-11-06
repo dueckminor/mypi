@@ -4,6 +4,7 @@ set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
 dyndns="$(Config::Get ".config.dyndns")"
@@ -15,6 +16,8 @@ DOMAIN="$(Config::Get ".config.domains[0].name")"
 if [[ -z "${HOSTNAME}" ]]; then
   DOMAIN="${dyndns}"
 fi
+
+cp "${DIR_ROOT}/config/pki/root_ca_cert.pem" "${DIR_ROOT}/etc/mosquitto/"
 
 Config::WriteEtcStripped "mosquitto/mosquitto.conf" <<EOF
 port 1883
@@ -36,4 +39,13 @@ connection_messages true
 log_timestamp true
 allow_anonymous false
 password_file /etc/mosquitto/passwd
+
+connection bridge-to-mqtt-int
+address mqtt-int:8883
+bridge_insecure true
+bridge_cafile /etc/mosquitto/root_ca_cert.pem
+remote_clientid bridge-mqtt-ext
+start_type automatic
+topic # out 2 owntracks/ owntracks/
+
 EOF

@@ -46,6 +46,12 @@ _mypi_completion()
             docker)
                 _mypi_add_compgen "build rebuild sh"
                 ;;
+            service)
+                DIR="${DIR_ROOT}/services/\${COMP_WORDS[2]}/actions"
+                if [[ -d "\${DIR}" ]]; then
+                    _mypi_add_compgen "\$(ls \${DIR})"
+                fi
+                ;;
         esac
     fi
 

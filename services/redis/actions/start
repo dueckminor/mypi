@@ -3,8 +3,8 @@
 set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
-DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
 
 Service::Start redis

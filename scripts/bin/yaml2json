@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [[ -f /usr/local/bin/yaml2json ]]; then
     /usr/local/bin/yaml2json "$*"
     exit
@@ -7,6 +9,7 @@ fi
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/docker.sh"
 
 if ! Docker::ImageIsAvailable "yaml2json"  ; then

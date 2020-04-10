@@ -12,7 +12,7 @@ source "${DIR_ROOT}/scripts/lib/config.sh"
 
 DOMAIN="$(Config::Get ".config.domains[0].name")"
 if [[ -z "${HOSTNAME}" ]]; then
-  DOMAIN="${dyndns}"
+  DOMAIN="$(Config::Get ".config.dyndns")"
 fi
 
 "${DIR_THIS}/create-config"

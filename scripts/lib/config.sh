@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
+DIR_ROOT="$(set -e ; cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
 
 #
 # Ensure that we have a working `jq` in PATH

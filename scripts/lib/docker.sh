@@ -3,8 +3,10 @@
 set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.."; pwd)"
+# shellcheck disable=SC2034
 SYS="$(uname -s | awk '{print tolower($0)}')"
 CPU="$(uname -m | awk '{print tolower($0)}')"
+ALPINE_VERSION=3.11.5
 
 case "${CPU}" in
 x86_64) 
@@ -30,7 +32,7 @@ Docker::ImageName()
 
 Docker::ImageIsAvailable()
 {
-    docker image inspect "$(Docker::ImageName ${1})" &> /dev/null
+    docker image inspect "$(Docker::ImageName "${1}")" &> /dev/null
 }
 
 Docker::ImageCreate()
@@ -59,7 +61,7 @@ Docker::ImageCreate()
  
     pushd "${DIR_DOCKER_BUILD}" > /dev/null
         TEMPLATE="$(cat "${DIR_DOCKER_BUILD}/Dockerfile")"
-        TEMPLATE="$(sed "s,@ALPINE@,alpine:3.9," <<< "${TEMPLATE}")"
+        TEMPLATE="$(sed "s,@ALPINE@,alpine:${ALPINE_VERSION}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@GOARCH@,${GOARCH}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"

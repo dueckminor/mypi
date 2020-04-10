@@ -6,7 +6,9 @@ FILTER="${1}"
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
 
 dyndns="$(Config::Get ".config.dyndns")"

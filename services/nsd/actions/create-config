@@ -4,6 +4,7 @@ set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
 dyndns="$(Config::Get ".config.dyndns")"

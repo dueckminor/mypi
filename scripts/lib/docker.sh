@@ -27,7 +27,12 @@ DOCKER_OWNER=dueckminor
 
 Docker::ImageName()
 {
-    echo "${DOCKER_OWNER}/${CPU}-${1}"
+    local IMAGE_NAME="${1}"
+    if [[ "${IMAGE_NAME}" =~ .+/.+/.+ ]]; then
+        echo "${IMAGE_NAME}"
+    else
+        echo "${DOCKER_OWNER}/${CPU}-${IMAGE_NAME}"
+    fi
 }
 
 Docker::ImageIsAvailable()

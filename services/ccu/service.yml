@@ -1,0 +1,9 @@
+service:
+  image: ghcr.io/jens-maus/raspberrymatic
+  depends: []
+  dockerargs: ["--privileged"]
+  mount:
+    - /lib/modules:/lib/modules:ro
+    - /opt/mypi/data/ccu_data:/usr/local
+  ports:
+    - 80:80

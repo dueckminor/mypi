@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+
+source "${DIR_ROOT}/scripts/lib/config.sh"
+
+# dyndns="$(Config::Get ".config.dyndns")"
+# if [[ -z "${dyndns}" ]]; then
+#     exit 1
+# fi
+
+# hostname="$(Config::Get ".config.hostname")"
+
+# Config::WriteEtcStripped "nsd/nsd.conf" <<EOF
+# ## NSD authoritative only DNS
+# ## nsd.conf .:. https://calomel.org
+# ## Primary or "Master" NSD server
+# #
+
+# server:
+#   # uncomment to specify specific interfaces to bind (default all).
+#   #  ip-address: 10.0.0.111
+
+#   # port to answer queries on. default is 53.
+#     port: 53
+
+#   # Number of NSD servers to fork.
+#     server-count: 1
+
+#   # listen only on IPv4 connections
+#     ip4-only: yes
+
+#   # don't answer VERSION.BIND and VERSION.SERVER CHAOS class queries
+#     hide-version: yes
+
+#   # identify the server (CH TXT ID.SERVER entry).
+#     identity: ""
+
+#   # The directory for zonefile: files.
+#     zonesdir: "/etc/nsd/zones"
+
+# # key:
+# #    name: "sec_key"
+# #    algorithm: hmac-md5
+# #    secret: "6KM6qiKfwfEpamEq72HQdA=="
+
+# remote-control:
+#     control-enable: yes
+
+# EOF
+
+# for ((i = 0 ;  ; i++)); do
+#     domain="$(Config::Get ".config.domains[${i}].name")"
+#     if [[ -z "${domain}" ]]; then
+#         break
+#     fi
+
+#     intranet="$(Config::Get ".config.domains[${i}].intranet")"
+#     if [[ "true" == "${intranet}" ]]; then
+#       wildcard_entry="*       CNAME   ${hostname}."
+#     else
+#       wildcard_entry="*       CNAME   ${dyndns}."
+#     fi
+
+#     Config::AppendEtc "nsd/nsd.conf" <<EOF
+# zone:
+#     name: ${domain}
+#     zonefile: ${domain}
+# EOF
+
+#     Config::WriteEtc "nsd/zones/${domain}" <<EOF
+# ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+# \$ORIGIN ${domain}.
+# \$TTL 60
+
+# @ IN SOA ns1.${domain}. admin.${domain}. (
+#         $(date "+%s")  ; serial number
+#         28800       ; Refresh
+#         7200        ; Retry
+#         600         ; Expire  (10 Minutes)
+#         60          ; Min TTL (1 Minute)
+# )
+#         NS      ns1.${domain}.
+# ns1     CNAME   ${dyndns}.
+# ${wildcard_entry}
+
+# ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+# _acme-challenge 10 IN TXT NA
+
+# ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+# EOF
+
+#     for ((j = 0 ;  ; j++)); do
+#       subdomain="$(Config::Get ".config.domains[${j}].name")"
+#       if [[ -z "${subdomain}" ]]; then
+#         break
+#       fi
+#       prefix=${subdomain/.${domain}/} 
+#       if [[ "${prefix}.${domain}" == "${subdomain}" ]]; then
+#         Config::AppendEtc "nsd/zones/${domain}" <<EOF
+
+# ${prefix} NS ${dyndns}.
+# ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+# EOF
+#       fi
+#     done
+
+#     Config::AppendEtc "nsd/zones/${domain}" <<EOF
+# EOF
+
+# done

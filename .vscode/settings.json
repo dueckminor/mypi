@@ -4,5 +4,11 @@
         "mypi",
         "nginx",
         "nodered"
+    ],
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/lib/python"
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/lib/python"
     ]
 }

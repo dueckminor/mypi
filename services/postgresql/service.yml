@@ -1,0 +1,8 @@
+service:
+  image: postgresql
+  depends: []
+  mount: []
+  ports:
+  - 5432:5432/tcp
+  env:
+  - POSTGRES_PASSWORD=password

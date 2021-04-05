@@ -23,7 +23,11 @@ if [[ -z "${HOSTNAME}" ]]; then
 fi
 
 TLS_CONFIG() {
-  echo "listen 10443 ssl;"
+  if [[ "${2}" == "true" ]]; then
+    echo "listen 443 ssl;"
+  else
+    echo "listen 10443 ssl;"
+  fi
   echo "  ssl_certificate      /etc/letsencrypt/live/${1}/fullchain.pem;"
   echo "  ssl_certificate_key  /etc/letsencrypt/live/${1}/privkey.pem"
 }
@@ -102,6 +106,7 @@ NEXT_SEQUENCE
 
 for ((i = 0 ;  ; i++)); do
   DOMAIN="$(Config::Get ".config.domains[${i}].name")"
+  INTRANET="$(Config::Get ".config.domains[${i}].intranet")"
   if [[ -z "${DOMAIN}" ]]; then break; fi
   for ((j = 0 ;  ; j++)); do
     HOST="$(Config::Get ".config.domains[${i}].hosts[${j}].name")"
@@ -114,13 +119,26 @@ for ((i = 0 ;  ; i++)); do
     Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
 server {
   server_name          ${HOST}.${DOMAIN};
-  $(TLS_CONFIG "${DOMAIN}");
+  $(TLS_CONFIG "${DOMAIN}" "${INTRANET}");
   location / {
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_pass ${URI};
     proxy_redirect ${URI}/ https://${HOST}.${DOMAIN}/;
+ST=pwa                                                                      
+DOMAIN="$(Config::Get ".config.domains[0].name")"                          
+Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
+server {                                                              
+  server_name          ${HOST}.${DOMAIN};                             
+  $(TLS_CONFIG "${DOMAIN}");                                                      
+  location / {                                                        
+    root /opt/ftp/pwa/;                                               
+    index index.html index.htm;                                       
+  }                                                                            
+}                                                                     
+EOF                                                                   
+NEXT_SEQUENCE 
     proxy_set_header X-Forwarded-Host ${HOST}.${DOMAIN};
     proxy_set_header X-Forwarded-Proto \$scheme;
   }
@@ -130,19 +148,21 @@ EOF
   done
 done
 
-HOST=pwa
+HOST=acdc
 DOMAIN="$(Config::Get ".config.domains[0].name")"
 Config::WriteEtc "nginx/conf.d/$(GET_SEQENCE)_${HOST}.${DOMAIN}.conf" <<EOF
 server {
   server_name          ${HOST}.${DOMAIN};
   $(TLS_CONFIG "${DOMAIN}");
   location / {
-    root /opt/ftp/pwa/;
+    root /opt/ftp/acdc/;
     index index.html index.htm;
   }
 }
 EOF
 NEXT_SEQUENCE
+
+
 
 # delete all config files which have not been created from this script
 find "${DIR_ROOT}/etc/nginx/conf.d/"         \

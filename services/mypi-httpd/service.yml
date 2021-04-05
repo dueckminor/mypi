@@ -1,0 +1,9 @@
+service:
+  image: mypi-httpd
+  depends: []
+  mount:
+  - config:/opt/mypi/config
+  - opt/www
+  ports: []
+  env:
+  - MYPI_CONFIG=/opt/mypi/config/mypi.yml

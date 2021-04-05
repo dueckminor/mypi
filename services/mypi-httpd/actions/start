@@ -4,7 +4,6 @@ set -e
 
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 
-# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
 
-Service::Stop mypi-router
+Service::Start mypi-httpd

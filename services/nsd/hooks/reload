@@ -1,4 +1,6 @@
 #!/bin/sh
 
-echo "Sending signal HUP to nsd"
-killall -HUP nsd
+echo "nsd-control reconfig"
+nsd-control reconfig
+echo "nsd-control reload"
+nsd-control reload

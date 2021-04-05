@@ -1,0 +1,11 @@
+service:
+  image: mypi-gateway
+  depends: []
+  mount:
+    - etc/letsencrypt
+    - etc/mypi-gateway
+  ports:
+    - 10080:10080/tcp
+    - 10443:10443/tcp
+    - 10444:10444/tcp
+    - 443:443/tcp

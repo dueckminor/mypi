@@ -12,6 +12,8 @@ if [[ -z "${dyndns}" ]]; then
     exit 1
 fi
 
+hostname="$(Config::Get ".config.hostname")"
+
 Config::WriteEtcStripped "nsd/nsd.conf" <<EOF
 ## NSD authoritative only DNS
 ## nsd.conf .:. https://calomel.org
@@ -44,12 +46,23 @@ server:
 #    name: "sec_key"
 #    algorithm: hmac-md5
 #    secret: "6KM6qiKfwfEpamEq72HQdA=="
+
+remote-control:
+    control-enable: yes
+
 EOF
 
 for ((i = 0 ;  ; i++)); do
     domain="$(Config::Get ".config.domains[${i}].name")"
     if [[ -z "${domain}" ]]; then
         break
+    fi
+
+    intranet="$(Config::Get ".config.domains[${i}].intranet")"
+    if [[ "true" == "${intranet}" ]]; then
+      wildcard_entry="*       CNAME   ${hostname}."
+    else
+      wildcard_entry="*       CNAME   ${dyndns}."
     fi
 
     Config::AppendEtc "nsd/nsd.conf" <<EOF
@@ -73,13 +86,31 @@ EOF
 )
         NS      ns1.${domain}.
 ns1     CNAME   ${dyndns}.
-*       CNAME   ${dyndns}.
+${wildcard_entry}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _acme-challenge 10 IN TXT NA
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EOF
+
+    for ((j = 0 ;  ; j++)); do
+      subdomain="$(Config::Get ".config.domains[${j}].name")"
+      if [[ -z "${subdomain}" ]]; then
+        break
+      fi
+      prefix=${subdomain/.${domain}/} 
+      if [[ "${prefix}.${domain}" == "${subdomain}" ]]; then
+        Config::AppendEtc "nsd/zones/${domain}" <<EOF
+
+${prefix} NS ${dyndns}.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EOF
+      fi
+    done
+
+    Config::AppendEtc "nsd/zones/${domain}" <<EOF
 EOF
 
 done

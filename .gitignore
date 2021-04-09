@@ -1,7 +1,9 @@
 vendor
-config
+/config
 .docker
 .tmp
-etc
-data
-opt
+/etc
+/data
+/opt
+__pycache__
+

@@ -1,0 +1,27 @@
+#!/sbin/openrc-run
+
+description="Forward broadcasts from docker0 to eth0."
+
+depend()
+{
+        need docker
+}
+
+start() {
+        ebegin "forward broadcasts from docker networks to eth0"
+
+        BC_ALL=
+        GATEWAY="$(ip address | grep "^ *inet.* eth0" | awk '{print $4}')"
+        
+        ifconfig \
+        | egrep '^(br-|docker)' \
+        | awk '{print $1}' \
+        | xargs -n 1 -- \
+          iptables -t mangle -A INPUT -d 255.255.255.255 -j TEE --gateway "${GATEWAY}" -i
+
+        eend $?
+}
+
+stop() {
+        return
+}

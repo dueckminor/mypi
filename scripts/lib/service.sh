@@ -20,15 +20,13 @@ Service::_Do_() {
     local CFG
     local SERVICE_IMAGE
     local i
+    local HAVE_NET=false
 
     CFG="$(Config::Load "${DIR_ROOT}/services/${SERVICE_NAME}/service.yml")"
 
     SERVICE_IMAGE="$(Config::Get "${CFG}" ".service.image")"
 
     ARGS=()
-
-    ARGS+=("--network")
-    ARGS+=("mypi-net")
 
     for ((i = 0 ;  ; i++)); do
         PORT="$(Config::Get "${CFG}" ".service.ports[${i}]")"
@@ -69,13 +67,23 @@ Service::_Do_() {
         ARGS+=("--restart" "unless-stopped")
     fi
 
+
+
     for ((i = 0 ;  ; i++)); do
         ARG="$(Config::Get "${CFG}" ".service.dockerargs[${i}]")"
         if [[ -z "${ARG}" ]]; then
             break
         fi
+        if [[ "${ARG}" == "--net" || "${ARG}" == "--network" ]]; then
+            HAVE_NET=true
+        fi
         ARGS+=("${ARG}")
     done
+
+    if [[ "${HAVE_NET}" == "false" ]]; then
+        ARGS+=("--network")
+        ARGS+=("mypi-net")
+    fi
 
     ${WHAT} "${SERVICE_NAME}" "${ARGS[@]}" "$(Docker::ImageName "${SERVICE_IMAGE}")" "$@"
 }

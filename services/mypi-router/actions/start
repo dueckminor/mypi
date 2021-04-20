@@ -10,18 +10,10 @@ source "${DIR_ROOT}/scripts/lib/service.sh"
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
-DOMAIN="$(Config::Get ".config.domains[0].name")"
-if [[ -z "${HOSTNAME}" ]]; then
-  DOMAIN="$(Config::Get ".config.dyndns")"
-fi
-
 "${DIR_THIS}/create-config"
 
 Service::Start mypi-router \
-    --auth="https://auth.${DOMAIN}" \
-    --port=8080 \
-    --client-id=mypi-router \
-    --mypi-root=/opt/mypi \
-    /etc/mypi-router/router.yml
+   --http-port=10080 --https-port=10443 \
+   /etc/mypi-router/router.yml
 
-#    --target=http://fritz.box \
+docker network connect mypi-internal mypi-router

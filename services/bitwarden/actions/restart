@@ -4,7 +4,5 @@ set -e
 
 DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
 
-docker stop nginx || true
-docker rm nginx || true
-
-"${DIR_THIS}/start" "$@"
+"${DIR_THIS}/stop"
+"${DIR_THIS}/start"

@@ -2,6 +2,10 @@ service:
   image: mypi-router
   depends: []
   mount:
-  - etc/auth/clients/mypi-router.yml:/opt/mypi/etc/auth/clients/mypi-router.yml
-  - etc/mypi-router
-  ports: []
+    - etc/letsencrypt
+    - etc/auth/clients/mypi-router.yml:/opt/mypi/etc/auth/clients/mypi-router.yml
+    - etc/mypi-router
+  ports:
+    - 10080:10080/tcp
+    - 10443:10443/tcp
+    - 10444:10444/tcp

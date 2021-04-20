@@ -7,4 +7,6 @@ DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
 
-Service::Stop nginx
+docker pull bitwardenrs/server:latest
+
+Service::Start bitwarden

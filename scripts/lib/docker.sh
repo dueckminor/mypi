@@ -28,7 +28,7 @@ DOCKER_OWNER=dueckminor
 Docker::ImageName()
 {
     local IMAGE_NAME="${1}"
-    if [[ "${IMAGE_NAME}" =~ .+/.+/.+ ]]; then
+    if [[ "${IMAGE_NAME}" =~ .+/.+ ]]; then
         echo "${IMAGE_NAME}"
     else
         echo "${DOCKER_OWNER}/${CPU}-${IMAGE_NAME}"

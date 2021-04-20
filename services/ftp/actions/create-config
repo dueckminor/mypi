@@ -7,7 +7,9 @@ DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/config.sh"
 
-Config::WriteEtcStripped "vsftpd/vsftpd.conf" <<EOF
+OWN_IP="$(/sbin/ifconfig eth0 | grep -i mask | awk '{print $2}'| cut -f2 -d:)"
+
+Config::WriteEtcStripped "vsftpd/vsftpd.conf" <<__EOF__
 anonymous_enable=NO
 dirmessage_enable=YES
 xferlog_enable=YES
@@ -21,7 +23,8 @@ write_enable=YES
 local_umask=022
 passwd_chroot_enable=yes
 seccomp_sandbox=NO
-pasv_enable=Yes
+pasv_enable=YES
+pasv_address=${OWN_IP}
 pasv_max_port=10100
 pasv_min_port=10090
-EOF
+__EOF__

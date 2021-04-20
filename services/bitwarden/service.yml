@@ -1,0 +1,8 @@
+service:
+  image: bitwardenrs/server:latest
+  depends: []
+  dockerargs: []
+  mount:
+    - /opt/mypi/data/bitwarden/:/data/
+  ports:
+    - 20080:80/tcp

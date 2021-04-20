@@ -24,8 +24,8 @@ port 1883
 
 listener 8883 0.0.0.0
 certfile /etc/letsencrypt/live/${DOMAIN}/cert.pem
-cafile   /etc/letsencrypt/live/${DOMAIN}/chain.pem
-keyfile  /etc/letsencrypt/live/${DOMAIN}/privkey.pem
+cafile /etc/letsencrypt/live/${DOMAIN}/chain.pem
+keyfile /etc/letsencrypt/live/${DOMAIN}/privkey.pem
 
 #persistence_file mosquitto.db
 #log_dest syslog

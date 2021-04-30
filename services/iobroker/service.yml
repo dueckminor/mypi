@@ -1,0 +1,7 @@
+service:
+  image: iobroker
+  depends: []
+  dockerargs: []
+  mount:
+  - /opt/mypi/data/iobroker:/opt/iobroker
+  ports: []

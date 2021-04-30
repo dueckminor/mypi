@@ -7,9 +7,9 @@ DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
 
 # shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/config.sh"
 
 "${DIR_THIS}/create-config"
 
-Service::Start mqtt-int /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
-
-docker network connect mypi-internal mqtt-int
+Service::Start mypi-ccu2mqtt /etc/mypi-ccu2mqtt/config.yml

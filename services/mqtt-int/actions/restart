@@ -15,3 +15,5 @@ Docker::Rm mqtt-int
 "${DIR_THIS}/create-config"
 
 Service::Start mqtt-int /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
+
+docker network connect mypi-internal mqtt-int

@@ -4,5 +4,4 @@ service:
   mount:
   - etc/letsencrypt
   - etc/mosquitto
-  ports:
-  - 18883:8883/tcp
+  ports: []

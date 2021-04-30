@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))+"/lib/python")
+
+from mypi.config import GetConfig,WriteYamlEtc,ReadYamlEtc
+
+config = GetConfig()
+
+ccu = ReadYamlEtc('ccu/credentials.yml')
+
+
+result = {}
+result['ccu']={}
+result['ccu']['uri']='http://ccu.mypi-internal:2010'
+result['ccu']['username']=ccu['ccu']['username']
+result['ccu']['password']=ccu['ccu']['password']
+result['mqtt']={}
+result['mqtt']['uri']='ssl://mqtt-int:8883'
+result['mqtt']['client_id']='ccu2mqtt'
+
+WriteYamlEtc('mypi-ccu2mqtt/config.yml',result)

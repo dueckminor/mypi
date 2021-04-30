@@ -26,3 +26,10 @@ def WriteIfChanged(fileName, content):
 
 def WriteYamlEtc(name, content):
     WriteIfChanged(rootDir+"/etc/"+name,yaml.dump(content))
+
+def ReadYamlEtc(name):
+    fileName = rootDir+"/etc/"+name
+    with open(fileName,mode='r') as file:
+        return yaml.safe_load(file)
+    return None
+

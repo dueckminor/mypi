@@ -5,18 +5,22 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))+"/lib/python")
 
-from mypi.config import GetConfig,WriteYamlEtc
+from mypi.config import GetConfig,WriteYamlEtc,ReadYamlEtc
 
 config = GetConfig()
+
+auth = ReadYamlEtc('auth/clients/mypi-router.yml')
+
+primaryDomain = config['domains'][0]['name']
 
 result = {}
 result['hosts'] = []
 result['certs'] = []
 result['auth']= {}
-result['auth']['client_id']='mypi-router'
-result['auth']['uri']='https://auth.rh94.dueckminor.de'
-result['auth']['client_secret']='2487b1114c0b8e9324b5a347f9828fcc'
-result['auth']['server_key']="-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA31xbNscy9B7JcLYoRrGb\nForfTFXEkoU+LJDfaIlofXOhUxIAdbIXuu7TM5pyXJWRrHYWeVnIS18QYhAZaaoR\ncGOfeOUmUbmEBqVtNGvVDgPqV6SzL79wrABnyMr1jwbLI1W0V5iHgN0nRDq5CfgT\nCiHtxmIRVb/YVQP+HzliHkP07APExp1NaJkchIzEuN1wHgDt+QDz6gZs2yXkTILT\nUEI7QhXdwn9j+X7KqsJcH4qgk7HX5aydh9LiUNtQTiaaRjbFg9i8DGLA97gdOcrI\nMrcKFcKTpqN8fXKf03f7XQ9BibTwT9lr7FEsJYZN1zuA8l8e1E2DHT6z/u4NbS9F\nwQIDAQAB\n-----END PUBLIC KEY-----\n"
+result['auth']['client_id']=auth['client_id']
+result['auth']['uri']='https://auth.' + primaryDomain
+result['auth']['client_secret']=auth['client_secret']
+result['auth']['server_key']=auth['server_key']
 
 for domain in config['domains']:
     domainName = domain['name']
@@ -35,29 +39,22 @@ for domain in config['domains']:
         # if not 'gateway' in host:
         #     continue
         # gateway = host['gateway']
-        if not 'uri' in host:
+        if not 'target' in host:
             continue
-        uri = host['uri']
+        target = host['target']
         entry={}
         entry['name']=hostName+"."+domainName
-        entry['target']=uri
+        entry['target']=target
         if 'insecure' in host:
             entry['insecure']=host['insecure']
         if 'headers' in host:
             entry['insecure'] = host['headers']
 
-        entry['mode'] = 'router'
-        if 'router' in host:
-            entry['target'] = 'mypi-router:8080'
-        elif uri.startswith('http://'):
-            entry['target'] = uri[7:]
-        elif uri.startswith('https://'):
-            entry['target'] = uri[8:]
-
-        if 'mode' in host and host['mode']=='http':
+        if 'mode' in host:
+            entry['mode'] = host['mode']
+        else:
             entry['mode'] = 'http'
-        if 'mode' in host and host['mode']=='https':
-            entry['mode'] = 'https'
+
         if 'options' in host:
             entry['options'] = host['options']
 

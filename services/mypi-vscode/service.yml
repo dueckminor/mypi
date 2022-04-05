@@ -1,0 +1,11 @@
+service:
+  image: mypi-vscode
+  depends: []
+  mount:
+  - /home/pi/.ssh:/home/pi/.ssh
+  - /opt/mypi:/opt/mypi
+  - /opt/mypi-tools:/opt/mypi-tools
+  - /etc/sshd:/etc/sshd
+  - /var/run/docker.sock:/var/run/docker.sock
+  ports:
+  - 2022:22

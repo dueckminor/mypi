@@ -5,12 +5,11 @@ set -e
 DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
 DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
 
+# shellcheck source=/dev/null
 source "${DIR_ROOT}/scripts/lib/service.sh"
+# shellcheck source=/dev/null
+source "${DIR_ROOT}/scripts/lib/config.sh"
 
 "${DIR_THIS}/create-config"
 
-if [[ "$(Docker::Status postgresql)" == "true" ]]; then
-    Docker::Exec "postgresql" "/services/nsd/hooks/reload"
-else
-    Service::Start postgresql
-fi
+Service::Start mypi-smarthome  --mypi-root=/opt/mypi --mqtt=mqtt-int /etc/mypi-smarthome/smarthome.yml

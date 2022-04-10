@@ -99,6 +99,9 @@ shift
 ACTION="${1}"
 shift
 
+PYTHONPATH="${DIR_ROOT}/lib/python"
+export PYTHONPATH
+
 case "${TYPE}-${ACTION}" in
 docker-build)
     "${DIR_ROOT}/scripts/docker-build" "${NAME}" "$@"

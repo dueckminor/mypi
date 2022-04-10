@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
+
+docker stop mypi-vscode || true
+docker rm mypi-vscode || true
+
+"${DIR_THIS}/start" "$@"

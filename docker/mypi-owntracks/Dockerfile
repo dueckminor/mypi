@@ -6,13 +6,16 @@ ENV MYPI_GIT_COMMIT_ID=${MYPI_GIT_COMMIT_ID}
 
 WORKDIR /go/src/github.com/dueckminor
 RUN git clone https://github.com/dueckminor/mypi-tools.git
-RUN go get github.com/dueckminor/mypi-tools/cmd/mypi-owntracks
+WORKDIR /go/src/github.com/dueckminor/mypi-tools
+RUN go get ./go/...
+
+RUN go build -o /usr/local/bin/mypi-owntracks cmd/mypi-owntracks/*.go
 
 FROM @ALPINE@
 
 RUN apk add --no-cache ca-certificates
 
-COPY --from=builder /go/bin/mypi-owntracks /usr/local/bin/mypi-owntracks
+COPY --from=builder /usr/local/bin/mypi-owntracks /usr/local/bin/mypi-owntracks
 
 WORKDIR /usr/local
 

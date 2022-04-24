@@ -44,7 +44,7 @@ _mypi_completion()
     if [[ \$COMP_CWORD == 3 ]]; then
         case "\${COMP_WORDS[1]}" in
             docker)
-                _mypi_add_compgen "build rebuild sh"
+                _mypi_add_compgen "build rebuild"
                 ;;
             service)
                 DIR="${DIR_ROOT}/services/\${COMP_WORDS[2]}/actions"
@@ -104,13 +104,10 @@ export PYTHONPATH
 
 case "${TYPE}-${ACTION}" in
 docker-build)
-    "${DIR_ROOT}/scripts/docker-build" "${NAME}" "$@"
+    python3 -c "import mypi.docker; mypi.docker.Image(\"${NAME}\").build()"
     ;;
 docker-rebuild)
-    "${DIR_ROOT}/scripts/docker-build" "${NAME}" "$@" --no-cache
-    ;;
-docker-sh)
-    "${DIR_ROOT}/scripts/docker-sh" "${NAME}" "$@"
+    python3 -c "import mypi.docker; mypi.docker.Image(\"${NAME}\").rebuild()"
     ;;
 service-*)
     "${DIR_ROOT}/services/${NAME}/actions/${ACTION}" "$@"

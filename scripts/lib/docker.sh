@@ -70,9 +70,6 @@ Docker::ImageCreate()
         TEMPLATE="$(sed "s,@CPU@,${CPU}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@GOARCH@,${GOARCH}," <<< "${TEMPLATE}")"
         TEMPLATE="$(sed "s,@OWNER@,${DOCKER_OWNER}," <<< "${TEMPLATE}")"
-        if [[ -f "${DIR_DOCKER}/filter.sh" ]]; then
-            TEMPLATE="$("${DIR_DOCKER}/filter.sh" <<< "${TEMPLATE}")"
-        fi
 
         echo "${TEMPLATE}" > "${DOCKERFILE}"
 

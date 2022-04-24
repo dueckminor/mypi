@@ -1,8 +1,34 @@
 import yaml
 import os
+import platform
 
 rootDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 mypiYml = None
+
+def get_root_dir():
+    return rootDir
+
+__cpu = None
+__goarch = None
+
+def __get_cpu():
+    global __cpu
+    global __goarch
+    if __cpu is not None:
+        return
+    processor = platform.processor()
+    if processor == "aarch64":
+        __cpu = "aarch64"
+        __goarch = "arm64"
+
+def get_cpu():
+    global __cpu
+    __get_cpu()
+    return __cpu
+def get_goarch():
+    global __goarch
+    __get_cpu()
+    return __goarch
 
 def GetConfig():
     global rootDir

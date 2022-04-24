@@ -6,7 +6,10 @@ ENV MYPI_GIT_COMMIT_ID=${MYPI_GIT_COMMIT_ID}
 
 WORKDIR /go/src/github.com/dueckminor
 RUN git clone https://github.com/dueckminor/mypi-tools.git
-RUN go get github.com/dueckminor/mypi-tools/cmd/mypi-videostream
+WORKDIR /go/src/github.com/dueckminor/mypi-tools
+RUN go get ./go/...
+
+RUN go build -o /usr/local/bin/mypi-videostream cmd/mypi-videostream/*.go
 
 WORKDIR /go/src/github.com/dueckminor/mypi-tools/web/mypi-videostream
 RUN npm install

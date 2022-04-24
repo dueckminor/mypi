@@ -96,10 +96,6 @@ Service::Run() {
     Service::_Do_ "Docker::Run" "$@"
 }
 
-Service::RunInteractive() {
-    Service::_Do_ "Docker::RunInteractive" "$@"
-}
-
 Service::Stop() {
     Docker::Stop "${1}"
 }

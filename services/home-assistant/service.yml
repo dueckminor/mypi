@@ -1,0 +1,6 @@
+service:
+  image: ghcr.io/home-assistant/home-assistant:stable
+  depends: []
+  mount:
+    - /opt/mypi/data/home-assistant:/config
+  ports: [8123]

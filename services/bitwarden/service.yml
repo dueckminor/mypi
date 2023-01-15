@@ -1,5 +1,5 @@
 service:
-  image: bitwardenrs/server:latest
+  image: vaultwarden/server:latest
   depends: []
   dockerargs: []
   mount:

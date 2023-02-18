@@ -3,6 +3,7 @@ service:
   depends: []
   mount:
   - /home/pi/.ssh:/home/pi/.ssh
+  - /opt/mypi/etc/mypi-debug/ssh:/etc/ssh
   - /opt/mypi:/opt/mypi
   - /opt/mypi-tools:/opt/mypi-tools
   - /var/run/docker.sock:/var/run/docker.sock

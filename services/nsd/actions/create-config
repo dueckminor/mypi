@@ -1,20 +1,19 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-set -e
+import time
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+from mypi.config import GetConfig,WriteConfigEtc,StripComments
+from mypi.fritzbox import get_external_ip
 
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/config.sh"
+config = GetConfig()
 
-dyndns="$(Config::Get ".config.dyndns")"
-if [[ -z "${dyndns}" ]]; then
-    exit 1
-fi
+dyndns = config['dyndns']
+hostname = config['hostname']
+public_ip = get_external_ip()
 
-hostname="$(Config::Get ".config.hostname")"
+WriteConfigEtc('nsd/public_ip.txt',public_ip)
 
-Config::WriteEtcStripped "nsd/nsd.conf" <<EOF
+nsd_conf='''\
 ## NSD authoritative only DNS
 ## nsd.conf .:. https://calomel.org
 ## Primary or "Master" NSD server
@@ -49,68 +48,45 @@ server:
 
 remote-control:
     control-enable: yes
+'''
 
-EOF
-
-for ((i = 0 ;  ; i++)); do
-    domain="$(Config::Get ".config.domains[${i}].name")"
-    if [[ -z "${domain}" ]]; then
-        break
-    fi
-
-    intranet="$(Config::Get ".config.domains[${i}].intranet")"
-    if [[ "true" == "${intranet}" ]]; then
-      wildcard_entry="*       CNAME   ${hostname}."
-    else
-      wildcard_entry="*       CNAME   ${dyndns}."
-    fi
-
-    Config::AppendEtc "nsd/nsd.conf" <<EOF
+for domain in config['domains']:
+    domain_name = domain['name']
+    nsd_conf += f'''\
 zone:
-    name: ${domain}
-    zonefile: ${domain}
-EOF
+    name: {domain_name}
+    zonefile: {domain_name}
+'''
 
-    Config::WriteEtc "nsd/zones/${domain}" <<EOF
+WriteConfigEtc('nsd/nsd.conf',StripComments(nsd_conf))
+
+for domain_config in config['domains']:
+  domain = domain_config['name']
+  if domain_config.get('intranet'):
+    wildcard_entry='f*       CNAME   {hostname}.'
+  else:
+    wildcard_entry=f'*       IN A    {public_ip}'
+  serial = int(time.time())
+  WriteConfigEtc(f'nsd/zones/{domain}',f'''
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-\$ORIGIN ${domain}.
-\$TTL 60
+$ORIGIN {domain}.
+$TTL 60
 
-@ IN SOA ns1.${domain}. admin.${domain}. (
-        $(date "+%s")  ; serial number
+@ IN SOA ns1.{domain}. admin.{domain}. (
+        {serial:10}  ; serial number
         28800       ; Refresh
         7200        ; Retry
         600         ; Expire  (10 Minutes)
         60          ; Min TTL (1 Minute)
 )
-        NS      ns1.${domain}.
-ns1     CNAME   ${dyndns}.
-${wildcard_entry}
+        NS      ns1.{domain}.
+ns1     CNAME   {dyndns}.
+{wildcard_entry}
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 _acme-challenge 10 IN TXT NA
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-EOF
-
-    for ((j = 0 ;  ; j++)); do
-      subdomain="$(Config::Get ".config.domains[${j}].name")"
-      if [[ -z "${subdomain}" ]]; then
-        break
-      fi
-      prefix=${subdomain/.${domain}/} 
-      if [[ "${prefix}.${domain}" == "${subdomain}" ]]; then
-        Config::AppendEtc "nsd/zones/${domain}" <<EOF
-
-${prefix} NS ${dyndns}.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-EOF
-      fi
-    done
-
-    Config::AppendEtc "nsd/zones/${domain}" <<EOF
-EOF
-
-done
+''')

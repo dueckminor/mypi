@@ -5,12 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "PYTHONPATH":"${workspaceFolder}/lib/python"
+            }
+        },
+        {
             "name": "Launch login",
             "type": "go",
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/login",
-            "env": {"DOCKER_HOST":"tcp://localhost:1234"},
+            "env": {
+                "DOCKER_HOST": "tcp://localhost:1234"
+            },
             "preLaunchTask": "start-remote-debubg"
         }
     ]

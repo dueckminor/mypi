@@ -8,12 +8,15 @@ RUN apt-get update \
     && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
+    dnsutils \
     git \
     gpg \
     lsb-release \
     openssh-server \
     python3 \
     python3-pip \
+    python3-requests \
+    python3-yaml \
     sudo \
     vim \
     && \
@@ -59,13 +62,5 @@ RUN cd /usr/local/bin \
     ln -s /usr/local/nodejs/bin/* . || true
 
 RUN npm install -g npm@8.6.0
-
-RUN apt-get update \
-    && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    python3-yaml \
-    python3-requests \
-    && \
-    rm -rf /var/lib/apt/lists/* /etc/sshd/*
 
 CMD ["/usr/sbin/sshd","-D"]

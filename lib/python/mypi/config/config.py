@@ -1,6 +1,8 @@
 import yaml
 import os
 import platform
+from typing import Union
+import re
 
 rootDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 mypiYml = None
@@ -17,6 +19,9 @@ def __get_cpu():
     if __cpu is not None:
         return
     processor = platform.processor()
+    if processor is None or processor == "":
+        processor = platform.machine()
+    print(f'processor: {processor}')
     if processor == "aarch64":
         __cpu = "aarch64"
         __goarch = "arm64"
@@ -41,7 +46,7 @@ def GetConfig():
             return None
     return mypiYml['config']
 
-def WriteIfChanged(fileName, content):
+def WriteIfChanged(fileName, content: str):
     if os.path.exists(fileName):
         with open(fileName,mode='r') as file:
             existingContent = file.read()
@@ -49,6 +54,9 @@ def WriteIfChanged(fileName, content):
                 return
     with open(fileName, mode='w') as file:
         file.write(content)
+
+def WriteConfigEtc(name, content):
+    WriteIfChanged(rootDir+"/etc/"+name,content)
 
 def WriteYamlEtc(name, content):
     WriteIfChanged(rootDir+"/etc/"+name,yaml.dump(content))
@@ -59,3 +67,18 @@ def ReadYamlEtc(name):
         return yaml.safe_load(file)
     return None
 
+def ReadConfigEtc(name):
+    fileName = rootDir+"/etc/"+name
+    with open(fileName,mode='r') as file:
+        return file.read()
+    return None
+
+def StripComments(content:str) -> str:
+    result = ''
+    for line in content.splitlines():
+        if re.match('^[ \t]*#',line):
+            continue
+        if re.match('^[ \t]*$',line):
+            continue
+        result += line+'\n'
+    return result

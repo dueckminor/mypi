@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+import os
+from mypi.config import ReadConfigEtc
+from mypi.fritzbox import get_external_ip
+import subprocess
+
+public_ip = get_external_ip()
+
+if public_ip == ReadConfigEtc('nsd/public_ip.txt'):
+    print(f'IP-Address has not changed ({public_ip})')
+else:
+    subprocess.Popen(os.path.join(os.path.dirname(__file__),'reload')).communicate()

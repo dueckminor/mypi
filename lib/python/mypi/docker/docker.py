@@ -1,8 +1,9 @@
 import docker
+from typing import Optional
 
-__client = None
+__client:Optional[docker.DockerClient] = None
 
-def get_client():
+def get_client() -> docker.DockerClient:
     global __client
     if __client is None:
         __client = docker.from_env()

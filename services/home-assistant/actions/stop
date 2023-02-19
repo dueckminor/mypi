@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-set -e
-
-docker stop home-assistant
-docker rm home-assistant
- 

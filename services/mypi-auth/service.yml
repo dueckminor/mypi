@@ -6,3 +6,6 @@ service:
   - etc/auth:/opt/mypi/etc/auth
   - etc/users.yml:/opt/mypi/etc/users.yml
   ports: []
+  command:
+    - --mypi-root=/opt/mypi
+    - --port=8080

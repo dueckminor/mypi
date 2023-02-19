@@ -2,7 +2,10 @@ service:
   image: mypi-ccu2mqtt
   depends: []
   dockerargs: [ "--network", "mypi-internal" ]
+  network: mypi-internal
   mount:
     - etc/mypi-ccu2mqtt
     - config/pki:/opt/mypi/config/pki
   ports: []
+  command:
+    - /etc/mypi-ccu2mqtt/config.yml

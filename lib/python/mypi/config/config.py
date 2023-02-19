@@ -46,6 +46,9 @@ def GetConfig():
             return None
     return mypiYml['config']
 
+def get_service_dir(service_name:str) -> str:
+    return os.path.join(rootDir,'services',service_name)
+
 def WriteIfChanged(fileName, content: str):
     if os.path.exists(fileName):
         with open(fileName,mode='r') as file:

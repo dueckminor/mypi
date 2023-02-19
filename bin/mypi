@@ -49,7 +49,7 @@ _mypi_completion()
             service)
                 DIR="${DIR_ROOT}/services/\${COMP_WORDS[2]}/actions"
                 if [[ -d "\${DIR}" ]]; then
-                    _mypi_add_compgen "\$(ls \${DIR})"
+                    _mypi_add_compgen "stop restart recreate \$(ls \${DIR})"
                 fi
                 ;;
         esac
@@ -110,6 +110,7 @@ docker-rebuild)
     python3 -c "import mypi.docker; mypi.docker.Image(\"${NAME}\").rebuild()"
     ;;
 service-*)
-    "${DIR_ROOT}/services/${NAME}/actions/${ACTION}" "$@"
+    python3 -c "import mypi.service; mypi.service.Service('${NAME}').call_action('${ACTION}')"
+    #"${DIR_ROOT}/services/${NAME}/actions/${ACTION}" "$@"
     ;;
 esac

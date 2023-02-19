@@ -1,7 +1,8 @@
 service:
   image: vsftpd
   depends: []
-  dockerargs: ["-e", "PASSWORD=secret"]
+  env:
+  - PASSWORD=secret
   mount:
   - etc/vsftpd
   - opt/ftp:/home/files

@@ -1,7 +1,7 @@
 service:
   image: vaultwarden/server:latest
+  pull: true
   depends: []
-  dockerargs: []
   mount:
     - /opt/mypi/data/bitwarden/:/data/
   ports:

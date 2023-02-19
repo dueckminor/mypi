@@ -5,3 +5,5 @@ service:
   - config/mypi.yml:/opt/mypi/config/mypi.yml
   - opt/ftp
   ports: []
+  command:
+    - "--mypi-root=/opt/mypi"

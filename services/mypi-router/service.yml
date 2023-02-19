@@ -9,3 +9,10 @@ service:
     - 10080:10080/tcp
     - 10443:10443/tcp
     - 10444:10444/tcp
+  command:
+    - --http-port=10080
+    - --https-port=10443
+    - /etc/mypi-router/router.yml
+  networks:
+    - mypi-net
+    - mypi-internal

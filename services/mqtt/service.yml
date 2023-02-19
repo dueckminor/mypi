@@ -5,3 +5,8 @@ service:
   - etc/letsencrypt
   - etc/mosquitto
   ports: []
+  command:
+    - mqtt
+    - /usr/sbin/mosquitto 
+    - -c 
+    - /etc/mosquitto/mosquitto.conf

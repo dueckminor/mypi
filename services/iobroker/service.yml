@@ -4,3 +4,8 @@ service:
   mount:
   - /opt/mypi/data/iobroker:/opt/iobroker
   ports: []
+  networks:
+    - mypi-net
+    - mypi-internal
+  command:
+    - /opt/iobroker_startup.sh

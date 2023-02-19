@@ -4,7 +4,7 @@ from ..config import get_service_dir,get_root_dir
 from ..docker import get_client
 import docker
 import yaml
-from typing import Optional
+from typing import Optional,List
 
 class Service:
     def __init__(self, name:str):
@@ -46,7 +46,8 @@ class Service:
         container = self._get_container()
         if not container:
             return
-        if container.status == 'running':
+        print(f'status: {container.status}')
+        if container.status == 'running' or container.status == 'restarting':
             container.stop()
 
     def restart(self):
@@ -64,6 +65,10 @@ class Service:
         create_config = self._get_action("create-config")
         if create_config:
             subprocess.Popen(create_config).communicate()
+
+        pre_start = self._get_action("pre-start")
+        if pre_start:
+            subprocess.Popen(pre_start).communicate()
         
         with open(os.path.join(self.dir,"service.yml")) as stream:
             service_yml = yaml.safe_load(stream)['service']
@@ -95,7 +100,7 @@ class Service:
             
         environment=service_yml.get('env')
         privileged=service_yml.get('privileged')
-        network=service_yml.get('network')
+        networks=self._get_networks(service_yml)
         mounts=service_yml.get('mount')
         volumes = []
         for mount in mounts or []:
@@ -111,7 +116,6 @@ class Service:
             
         print(volumes)
     
-        if not network: network='mypi-net' 
         kwargs={}
         if command:
             kwargs['command']=command
@@ -123,13 +127,12 @@ class Service:
             kwargs['environment']=environment
         if privileged:
             kwargs['privileged']=True
-        kwargs['network']=network
+        kwargs['network']=networks[0]
         kwargs['restart_policy']={
             'Name': 'unless-stopped', 
             'MaximumRetryCount': 0
         }
 
-        
         container = client.containers.create(
             image=image,
             name=self.name,
@@ -137,3 +140,22 @@ class Service:
             
             **kwargs)
         container.start()
+
+        if len(networks)>1:
+            for network in networks[1:]:
+                client.networks.get(network).connect(container)
+
+        container.reload()
+        #print(yaml.dump(container.attrs))
+
+
+    def _get_networks(self, service_yml:dict) -> List[str]:
+        networks = service_yml.get('networks')
+        network = service_yml.get('network')
+        if networks and network:
+            raise(BaseException('You must not use network AND networks!'))
+        if networks:
+            return networks
+        if network:
+            return [network]
+        return ['mypi-net']

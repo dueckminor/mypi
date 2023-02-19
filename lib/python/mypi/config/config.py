@@ -1,7 +1,7 @@
 import yaml
 import os
 import platform
-from typing import Union
+from typing import Union,Optional
 import re
 
 rootDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
@@ -35,7 +35,7 @@ def get_goarch():
     __get_cpu()
     return __goarch
 
-def GetConfig():
+def GetConfig() -> Optional[dict]:
     global rootDir
     global mypiYml
 

@@ -1,10 +1,10 @@
 service:
   image: ghcr.io/jens-maus/raspberrymatic
-  depends: []
-  dockerargs: [ "--privileged", "--network", "mypi-internal" ]
+  pull: true
   privileged: true
-  network: mypi-internal
+  networks: 
+    - mypi-internal
+    - mypi-ccu
   mount:
     - /lib/modules:/lib/modules:ro
     - /opt/mypi/data/ccu_data:/usr/local
-  ports: []

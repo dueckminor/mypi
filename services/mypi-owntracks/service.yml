@@ -6,3 +6,5 @@ service:
   - config/pki:/opt/mypi/config/pki
   - opt/owntracks/config:/opt/owntracks/config
   ports: []
+  command:
+    - --mypi-root=/opt/mypi

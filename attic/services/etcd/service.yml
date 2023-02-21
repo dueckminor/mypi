@@ -1,6 +1,0 @@
-service:
-  image: etcd
-  depends: []
-  mount: []
-  ports:
-  - 2379:2379/tcp

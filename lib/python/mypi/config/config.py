@@ -10,6 +10,15 @@ mypiYml = None
 def get_root_dir():
     return rootDir
 
+def fn_root(*parts: str):
+    return os.path.join(rootDir, *parts)
+def fn_etc(*parts: str):
+    return os.path.join(rootDir, 'etc', *parts)
+
+def md(*parts: str):
+    dir = os.path.join(rootDir, *parts)
+    os.makedirs(dir,exist_ok=True)
+
 __cpu = None
 __goarch = None
 

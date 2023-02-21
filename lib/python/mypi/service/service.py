@@ -1,30 +1,34 @@
 import os
+import sys
 import subprocess
 from ..config import get_service_dir,get_root_dir
 from ..docker import get_client
 import docker
 import yaml
 from typing import Optional,List
+from ..console.powerline import Powerline
 
 class Service:
     def __init__(self, name:str):
         self.name = name
         self.dir = get_service_dir(name)
         
+    def dump_action(self, action_name:str):
+        with Powerline() as p:
+            p.blue_segment(text=self.name)
+            p.grey_segment(text=action_name)
+        
     def call_action(self, action_name:str):
-        print(f"{self.name} -> {action_name}")
+        self.dump_action(action_name)
         script = self._get_action(action_name)
         if script:
             cmd = subprocess.Popen(script)
             cmd.communicate()
-        elif action_name == 'start':
-            self.start()
-        elif action_name == 'stop':
-            self.stop()
-        elif action_name == 'restart':
-            self.restart()
-        elif action_name == 'recreate':
-            self.recreate()
+        elif action_name == 'start':     self.start()
+        elif action_name == 'stop':      self.stop()
+        elif action_name == 'restart':   self.restart()
+        elif action_name == 'recreate':  self.recreate()
+        elif action_name == 'sh':        self.sh()
         else:
             print(f'found no action named {action_name}!')
                   
@@ -60,14 +64,23 @@ class Service:
         if container:
             container.remove()
         self.call_action('start')
-        
+
+    def sh(self):
+        container = self._get_container()
+        if container:
+            rc = os.system(f'docker exec -it {self.name} ash')
+            print()
+            sys.exit(rc)
+
     def start(self):
         create_config = self._get_action("create-config")
         if create_config:
+            self.dump_action("create-config")
             subprocess.Popen(create_config).communicate()
 
         pre_start = self._get_action("pre-start")
         if pre_start:
+            self.dump_action("pre-start")
             subprocess.Popen(pre_start).communicate()
         
         with open(os.path.join(self.dir,"service.yml")) as stream:
@@ -101,6 +114,7 @@ class Service:
         environment=service_yml.get('env')
         privileged=service_yml.get('privileged')
         networks=self._get_networks(service_yml)
+        devices=service_yml.get('devices')
         mounts=service_yml.get('mount')
         volumes = []
         for mount in mounts or []:
@@ -125,6 +139,8 @@ class Service:
             kwargs['volumes']=volumes
         if environment:
             kwargs['environment']=environment
+        if devices:
+            kwargs['devices']=devices
         if privileged:
             kwargs['privileged']=True
         kwargs['network']=networks[0]

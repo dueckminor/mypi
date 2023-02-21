@@ -1,24 +1,18 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-set -e
+import shutil
+from mypi.config import WriteConfigEtc,StripComments,fn_root,fn_etc,md
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+md(fn_etc('mosquitto-int'))
+shutil.copy2(fn_root('config/pki/root_ca_cert.pem'),fn_etc('mosquitto-int'))
 
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/config.sh"
+tls_priv_pem = fn_etc('mosquitto-int','tls_priv.pem')
+# TODO: create the key if missing
+# openssl genrsa -out "${DIR_ROOT}/etc/mosquitto-int/tls_priv.pem" 2048
+tls_cert_pem = fn_etc('mosquitto-int','tls_cert.pem')
+# TODO: create the cert if missing
 
-mkdir -p "${DIR_ROOT}/etc/mosquitto-int"
-cp "${DIR_ROOT}/config/pki/root_ca_cert.pem" "${DIR_ROOT}/etc/mosquitto-int/"
-
-if [[ ! -f "${DIR_ROOT}/etc/mosquitto-int/tls_priv.pem" ]]; then
-  openssl genrsa -out "${DIR_ROOT}/etc/mosquitto-int/tls_priv.pem" 2048
-fi
-
-if [[ ! -f "${DIR_ROOT}/etc/mosquitto-int/tls_cert.pem" ]]; then
-  true
-fi
-
-Config::WriteEtcStripped "mosquitto-int/mosquitto.conf" <<EOF
+mosquitto_conf='''\
 port 1883
 
 listener 8883 0.0.0.0
@@ -35,4 +29,6 @@ log_type information
 connection_messages true
 log_timestamp true
 allow_anonymous true
-EOF
+'''
+
+WriteConfigEtc('mosquitto-int/mosquitto.conf',StripComments(mosquitto_conf))

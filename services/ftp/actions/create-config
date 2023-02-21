@@ -1,15 +1,10 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-set -e
+from mypi.config import GetConfig,WriteConfigEtc
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+config = GetConfig()
 
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/config.sh"
-
-OWN_IP="$(/sbin/ifconfig eth0 | grep -i mask | awk '{print $2}'| cut -f2 -d:)"
-
-Config::WriteEtcStripped "vsftpd/vsftpd.conf" <<__EOF__
+vsftpd_conf=f'''\
 anonymous_enable=NO
 dirmessage_enable=YES
 xferlog_enable=YES
@@ -24,7 +19,9 @@ local_umask=022
 passwd_chroot_enable=yes
 seccomp_sandbox=NO
 pasv_enable=YES
-pasv_address=${OWN_IP}
+pasv_address={config['private_ip']}
 pasv_max_port=10100
 pasv_min_port=10090
-__EOF__
+'''
+
+WriteConfigEtc('vsftpd/vsftpd2.conf',vsftpd_conf)

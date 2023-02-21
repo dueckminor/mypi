@@ -1,31 +1,22 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-set -e
+import shutil
+from mypi.config import GetConfig,WriteConfigEtc,StripComments,fn_root,fn_etc,md
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+config = GetConfig()
+dyndns = config['dyndns']
+domain = config['domains'][0]['name']
 
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/config.sh"
+md(fn_etc('mosquitto'))
+shutil.copy2(fn_root('config/pki/root_ca_cert.pem'),fn_etc('mosquitto'))
 
-dyndns="$(Config::Get ".config.dyndns")"
-if [[ -z "${dyndns}" ]]; then
-    exit 1
-fi
-
-DOMAIN="$(Config::Get ".config.domains[0].name")"
-if [[ -z "${HOSTNAME}" ]]; then
-  DOMAIN="${dyndns}"
-fi
-
-cp "${DIR_ROOT}/config/pki/root_ca_cert.pem" "${DIR_ROOT}/etc/mosquitto/"
-
-Config::WriteEtcStripped "mosquitto/mosquitto.conf" <<EOF
+mosquitto_conf=f'''\
 port 1883
 
 listener 8883 0.0.0.0
-certfile /etc/letsencrypt/live/${DOMAIN}/cert.pem
-cafile /etc/letsencrypt/live/${DOMAIN}/chain.pem
-keyfile /etc/letsencrypt/live/${DOMAIN}/privkey.pem
+certfile /etc/letsencrypt/live/{domain}/cert.pem
+cafile /etc/letsencrypt/live/{domain}/chain.pem
+keyfile /etc/letsencrypt/live/{domain}/privkey.pem
 
 #persistence_file mosquitto.db
 #log_dest syslog
@@ -47,5 +38,6 @@ bridge_cafile /etc/mosquitto/root_ca_cert.pem
 remote_clientid bridge-mqtt-ext
 start_type automatic
 topic # out 2 owntracks/ owntracks/
+'''
 
-EOF
+WriteConfigEtc('mosquitto/mosquitto.conf',StripComments(mosquitto_conf))

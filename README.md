@@ -9,7 +9,6 @@ The following packages have been installed:
 - bash
 - docker
 - git
-- jq
 - sudo
 - wireless-tools
 - wpa_supplicant

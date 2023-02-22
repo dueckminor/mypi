@@ -12,6 +12,7 @@ class Service:
     def __init__(self, name:str):
         self.name = name
         self.dir = get_service_dir(name)
+        self.service_yml:dict = None
         
     def dump_action(self, action_name:str):
         with Powerline() as p:
@@ -72,6 +73,25 @@ class Service:
             print()
             sys.exit(rc)
 
+    def run(self, *args:str) -> int:
+        kwargs = self._get_docker_args()
+        client = get_client()
+        container = client.containers.run(
+            command=args,detach=True,auto_remove=True,
+            **kwargs)
+        for log in container.logs(stream=True):
+            print(log.decode('utf8'),end="")
+        return container.attrs['State']['ExitCode']
+
+    def exec(self, *args:str):
+        container = self._get_container()
+        if container:
+            _, output = container.exec_run(cmd=args,stream=True)
+            for log in output:
+                print(log.decode('utf8'),end="")
+            
+
+
     def start(self):
         create_config = self._get_action("create-config")
         if create_config:
@@ -82,26 +102,52 @@ class Service:
         if pre_start:
             self.dump_action("pre-start")
             subprocess.Popen(pre_start).communicate()
-        
-        with open(os.path.join(self.dir,"service.yml")) as stream:
-            service_yml = yaml.safe_load(stream)['service']
-        
-        client = get_client()
-        
-        image = service_yml['image']
-        if not '/' in image:
-            image = f'dueckminor/aarch64-{image}'
-
-        if service_yml.get('pull'):
-            client.images.pull(image)
 
         container = self._get_container()
         if container:
             if container.status == 'running':
                 return
             container.remove()
-        
-        
+
+        service_yml = self._get_service_yml()
+
+        kwargs = self._get_docker_args()
+
+        client = get_client()
+        if service_yml.get('pull'):
+            client.images.pull(kwargs['image'])
+
+        kwargs['restart_policy']={
+            'Name': 'unless-stopped', 
+            'MaximumRetryCount': 0
+        }
+
+        container = client.containers.create(
+            name=self.name,
+            hostname=self.name,
+            **kwargs)
+        container.start()
+
+        networks = kwargs['networks']
+        if len(networks)>1:
+            for network in networks[1:]:
+                client.networks.get(network).connect(container)
+
+        container.reload()
+
+    def _get_service_yml(self) -> dict:
+        if self.service_yml:
+            return self.service_yml
+        with open(os.path.join(self.dir,"service.yml")) as stream:
+            self.service_yml = yaml.safe_load(stream)['service']
+            return self.service_yml
+
+    def _get_docker_args(self) -> dict:
+        service_yml = self._get_service_yml()
+        image = service_yml['image']
+        if not '/' in image:
+            image = f'dueckminor/aarch64-{image}'
+
         command=service_yml.get('command')
         ports={}
         for port in service_yml.get('ports') or []:
@@ -127,9 +173,7 @@ class Service:
                     os.mkdir(local)
                 mount = local+":/"+mount
             volumes.append(mount)
-            
-        print(volumes)
-    
+
         kwargs={}
         if command:
             kwargs['command']=command
@@ -144,26 +188,8 @@ class Service:
         if privileged:
             kwargs['privileged']=True
         kwargs['network']=networks[0]
-        kwargs['restart_policy']={
-            'Name': 'unless-stopped', 
-            'MaximumRetryCount': 0
-        }
-
-        container = client.containers.create(
-            image=image,
-            name=self.name,
-            hostname=self.name,
-            
-            **kwargs)
-        container.start()
-
-        if len(networks)>1:
-            for network in networks[1:]:
-                client.networks.get(network).connect(container)
-
-        container.reload()
-        #print(yaml.dump(container.attrs))
-
+        kwargs['image']=image
+        return kwargs
 
     def _get_networks(self, service_yml:dict) -> List[str]:
         networks = service_yml.get('networks')

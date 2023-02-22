@@ -1,17 +1,7 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-set -e
+from mypi.service import Service
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
-DIR_THIS="$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)"
-
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/service.sh"
-
-"${DIR_THIS}/create-config"
-
-if [[ "$(Docker::Status nsd)" == "true" ]]; then
-    Docker::Exec "nsd" "/services/nsd/hooks/reload"
-else
-    Service::Start nsd
-fi
+service = Service("nsd")
+service.exec("nsd-control","reconfig")
+service.exec("nsd-control","reload")

@@ -1,52 +1,35 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python3
 
-set -e
+import sys
+from mypi.config import GetConfig
+from mypi.service import Service
+from mypi.console.powerline import Powerline,c
 
-FILTER="${1}"
+service = Service("certbot")
 
-DIR_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.."; pwd)"
+config = GetConfig()
+dyndns = config.get('dyndns')
+if dyndns:
+    with Powerline() as p:
+        p.segment(bg=c.rgb6(0,0,5),fg=c.rgb6(5,5,0),text=dyndns)
+    rc = service.run('certonly', '--manual', '-n', '--preferred-challenges=http',
+            '--agree-tos', '--manual-public-ip-logging-ok',
+            '-d', dyndns,
+            '--manual-auth-hook=/services/certbot/hooks/http-auth',
+            '--manual-cleanup-hook=/services/certbot/hooks/http-cleanup')
+    if rc != 0:
+        sys.exit(rc)
 
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/config.sh"
-# shellcheck source=/dev/null
-source "${DIR_ROOT}/scripts/lib/service.sh"
-
-dyndns="$(Config::Get ".config.dyndns")"
-
-if [[ -n "${dyndns}" ]]; then
-    if [[ -n "${FILTER}" && "${FILTER}" != "${dyndns}" ]]; then
-        echo "Ignoring: ${dyndns}"
-    else
-        echo "Request certificate for: ${dyndns}"
-        echo
-        Service::Run certbot certonly\
-            --manual -n \
-            --preferred-challenges=http \
-            --agree-tos \
-            --manual-public-ip-logging-ok \
-            -d "${dyndns}" \
-            --manual-auth-hook=/services/certbot/hooks/http-auth \
-            --manual-cleanup-hook=/services/certbot/hooks/http-cleanup
-    fi
-fi
-
-for ((i = 0 ;  ; i++)); do
-    domain="$(Config::Get ".config.domains[${i}].name")"
-    if [[ -z "${domain}" ]]; then
-        break
-    fi
-    if [[ -n "${FILTER}" && "${FILTER}" != "${domain}" ]]; then
-        echo "Ignoring: *.${domain}"
+for domain_info in config.get('domains'):
+    domain = domain_info.get('name')
+    if not domain:
         continue
-    fi
-    echo "Request certificate for: *.${domain}"
-    echo
-    Service::Run certbot certonly\
-        --manual -n \
-        --preferred-challenges=dns \
-        --agree-tos \
-        --manual-public-ip-logging-ok \
-        -d "*.${domain}" \
-        --manual-auth-hook=/services/certbot/hooks/dns-auth \
-        --manual-cleanup-hook=/services/certbot/hooks/dns-cleanup
-done
+    with Powerline() as p:
+        p.segment(bg=c.rgb6(0,0,5),fg=c.rgb6(5,5,0),text=domain)
+    rc = service.run('certonly', '--manual', '-n', '--preferred-challenges=dns',
+            '--agree-tos', '--manual-public-ip-logging-ok',
+            '-d', '*.'+domain,
+            '--manual-auth-hook=/services/certbot/hooks/dns-auth',
+            '--manual-cleanup-hook=/services/certbot/hooks/dns-cleanup')
+    if rc != 0:
+        sys.exit(rc)

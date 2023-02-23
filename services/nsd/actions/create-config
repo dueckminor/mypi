@@ -11,8 +11,6 @@ dyndns = config['dyndns']
 hostname = config['hostname']
 public_ip = get_external_ip()
 
-WriteConfigEtc('nsd/public_ip.txt',public_ip)
-
 nsd_conf='''\
 ## NSD authoritative only DNS
 ## nsd.conf .:. https://calomel.org
@@ -90,3 +88,5 @@ _acme-challenge 10 IN TXT NA
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ''')
+
+WriteConfigEtc('nsd/public_ip.txt',public_ip)

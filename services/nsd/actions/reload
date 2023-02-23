@@ -3,5 +3,6 @@
 from mypi.service import Service
 
 service = Service("nsd")
+service.call_action("create-config")
 service.exec("nsd-control","reconfig")
 service.exec("nsd-control","reload")

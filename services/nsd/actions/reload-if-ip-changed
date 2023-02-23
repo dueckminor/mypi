@@ -10,4 +10,5 @@ public_ip = get_external_ip()
 if public_ip == ReadConfigEtc('nsd/public_ip.txt'):
     print(f'IP-Address has not changed ({public_ip})')
 else:
+    print(f'IP-Address has changed ({public_ip})')
     subprocess.Popen(os.path.join(os.path.dirname(__file__),'reload')).communicate()

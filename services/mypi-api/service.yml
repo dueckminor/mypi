@@ -1,9 +1,0 @@
-service:
-  image: mypi-api
-  depends: []
-  mount:
-  - config:/opt/mypi/config
-  ports:
-  - 8080:8080/tcp
-  env:
-  - MYPI_CONFIG=/opt/mypi/config/mypi.yml

@@ -6,3 +6,7 @@ service:
     - config/pki:/opt/mypi/config/pki
     - etc/mypi-smarthome
   ports: []
+  command:
+    - "--mqtt=mqtt-int"
+    - "/etc/mypi-smarthome/smarthome.yml"
+

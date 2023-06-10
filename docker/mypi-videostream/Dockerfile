@@ -17,7 +17,7 @@ RUN npm run build
 
 FROM @OWNER@/@CPU@-ffmpeg
 
-COPY --from=builder /go/bin/mypi-videostream /usr/local/bin/mypi-videostream
+COPY --from=builder /usr/local/bin/mypi-videostream /usr/local/bin/mypi-videostream
 COPY --from=builder /go/src/github.com/dueckminor/mypi-tools/web/mypi-videostream/dist /usr/local/dist/
 
 WORKDIR /usr/local

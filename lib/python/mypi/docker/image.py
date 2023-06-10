@@ -17,7 +17,7 @@ UNDERLINE = '\033[4m'
 RESET = '\033[0m'
 
 docker_owner='dueckminor'
-alpine_version='3.15.4'
+alpine_version='3.18.0'
 
 p_env_mypi_git_repo = re.compile(r"^\s*ENV\s+MYPI_GIT_REPO\s*=\s*(\S*)\s*$")
 

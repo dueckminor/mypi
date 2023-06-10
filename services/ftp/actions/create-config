@@ -24,4 +24,4 @@ pasv_max_port=10100
 pasv_min_port=10090
 '''
 
-WriteConfigEtc('vsftpd/vsftpd2.conf',vsftpd_conf)
+WriteConfigEtc('vsftpd/vsftpd.conf',vsftpd_conf)

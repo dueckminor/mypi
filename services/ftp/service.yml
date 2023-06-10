@@ -4,7 +4,7 @@ service:
   env:
   - PASSWORD=secret
   mount:
-  - etc/vsftpd
+  - etc/vsftpd:/etc/vsftpd.in
   - opt/ftp:/home/files
   ports:
     - "20:20/tcp"

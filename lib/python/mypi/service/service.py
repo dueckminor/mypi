@@ -128,7 +128,7 @@ class Service:
             **kwargs)
         container.start()
 
-        networks = kwargs['networks']
+        networks = self._get_networks(service_yml)
         if len(networks)>1:
             for network in networks[1:]:
                 client.networks.get(network).connect(container)

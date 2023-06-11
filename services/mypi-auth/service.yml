@@ -3,8 +3,7 @@ service:
   depends: []
   mount:
   - config/mypi.yml:/opt/mypi/config/mypi.yml
-  - etc/auth:/opt/mypi/etc/auth
-  - etc/users.yml:/opt/mypi/etc/users.yml
+  - etc/mypi-auth:/opt/mypi/etc/mypi-auth
   ports: []
   command:
     - --mypi-root=/opt/mypi

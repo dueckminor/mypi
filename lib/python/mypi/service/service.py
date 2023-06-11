@@ -151,12 +151,13 @@ class Service:
         command=service_yml.get('command')
         ports={}
         for port in service_yml.get('ports') or []:
+            if isinstance(port,int):
+                port=str(port)
             port_parts = port.split(':')
             if len(port_parts)==1:
                 ports[port_parts[0]+"/tcp"]=port_parts[0]
             else:
                 ports[port_parts[1]]=port_parts[0]
-            
         environment=service_yml.get('env')
         privileged=service_yml.get('privileged')
         networks=self._get_networks(service_yml)

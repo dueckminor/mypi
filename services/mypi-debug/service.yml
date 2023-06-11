@@ -9,4 +9,4 @@ service:
   - /var/run/docker.sock:/var/run/docker.sock
   - /home/pi:/home/pi
   ports:
-    - 2022:22
+    - "2022:22"

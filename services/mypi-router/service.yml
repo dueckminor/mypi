@@ -3,7 +3,7 @@ service:
   depends: []
   mount:
     - etc/letsencrypt
-    - etc/auth/clients/mypi-router.yml:/opt/mypi/etc/auth/clients/mypi-router.yml
+    - etc/mypi-auth/clients/mypi-router.yml:/opt/mypi/etc/mypi-auth/clients/mypi-router.yml
     - etc/mypi-router
   ports:
     - 10080:10080/tcp

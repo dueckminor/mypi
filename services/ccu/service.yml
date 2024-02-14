@@ -4,7 +4,7 @@ service:
   privileged: true
   networks: 
     - mypi-internal
-    - mypi-ccu
+    - mypi-macvlan
   mount:
     - /lib/modules:/lib/modules:ro
     - /opt/mypi/data/ccu_data:/usr/local

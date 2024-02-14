@@ -1,0 +1,12 @@
+service:
+  image: influxdb:alpine
+  pull: true
+  depends: []
+  mount:
+    - /opt/mypi/data/influxdb:/var/lib/influxdb2
+  dockerargs:
+    - --hostname=influxdb
+  networks:
+    - mypi-internal
+  ports:
+    - 8086:8086/tcp

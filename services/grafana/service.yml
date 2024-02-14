@@ -1,0 +1,15 @@
+service:
+  image: grafana/grafana:latest
+  pull: true
+  depends: []
+  mount:
+    - /opt/mypi/data/grafana/data:/var/lib/grafana
+  dockerargs:
+    - --hostname=grafana
+  networks:
+    - mypi-internal
+  ports:
+    - 3000:3000/tcp
+  env:
+    GF_SERVER_DOMAIN: grafana.rh94.dueckminor.de
+    GF_SECURITY_ALLOW_EMBEDDING: true

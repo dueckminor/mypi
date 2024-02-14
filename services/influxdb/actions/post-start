@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+sleep 10
+
+docker exec influxdb influx setup \
+    --username mypi --password topsecret --token topsecret \
+    --org mypi --bucket mypi \
+    --retention 0 \
+    --force

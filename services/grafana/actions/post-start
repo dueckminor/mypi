@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+sleep 10
+
+docker exec grafana grafana cli admin reset-admin-password topsecret

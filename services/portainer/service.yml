@@ -1,0 +1,8 @@
+service:
+  image: portainer/portainer-ce:latest
+  depends: []
+  mount:
+  - /opt/mypi/data/portainer:/data
+  - /var/run/docker.sock:/var/run/docker.sock
+  ports:
+  - 9443:9443/tcp

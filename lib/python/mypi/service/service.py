@@ -135,6 +135,11 @@ class Service:
 
         container.reload()
 
+        post_start = self._get_action("post-start")
+        if post_start:
+            self.dump_action("post-start")
+            subprocess.Popen(post_start).communicate()
+
     def _get_service_yml(self) -> dict:
         if self.service_yml:
             return self.service_yml
@@ -145,7 +150,7 @@ class Service:
     def _get_docker_args(self) -> dict:
         service_yml = self._get_service_yml()
         image = service_yml['image']
-        if not '/' in image:
+        if '/' not in image and ':' not in image:
             image = f'dueckminor/aarch64-{image}'
 
         command=service_yml.get('command')

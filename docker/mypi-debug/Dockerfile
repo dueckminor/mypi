@@ -17,6 +17,7 @@ RUN apt-get update \
     python3-pip \
     python3-requests \
     python3-yaml \
+    sqlite3 \
     sudo \
     vim \
     && \

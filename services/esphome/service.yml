@@ -1,7 +1,5 @@
 service:
   image: esphome
-  #privileged: true
-  #pull: true
   depends: []
   mount:
     - /opt/mypi/data/home-assistant/esphome:/config
@@ -9,7 +7,6 @@ service:
     - USERNAME=esphome
     - PASSWORD=ChangeMe
   dockerargs:
-    #- --device=/dev/bus/usb:/dev/bus/usb:rwm
     - --hostname=esphome
     - '-u'
     - '1000:1000'

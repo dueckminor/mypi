@@ -19,6 +19,7 @@ result['auth']['client_id']=auth['client_id']
 result['auth']['uri']='https://auth.' + primaryDomain
 result['auth']['client_secret']=auth['client_secret']
 result['auth']['server_key']=auth['server_key']
+result['auth']['secret']=auth['secret']
 
 for domain in config['domains']:
     domainName = domain['name']

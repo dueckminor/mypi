@@ -7,6 +7,7 @@ import docker
 import yaml
 from typing import Optional,List
 from ..console.powerline import Powerline
+from ipaddress import IPv4Network
 
 class Service:
     def __init__(self, name:str):
@@ -115,7 +116,9 @@ class Service:
 
         client = get_client()
         if service_yml.get('pull'):
-            client.images.pull(kwargs['image'])
+            self.dump_action("pull")
+            subprocess.run(args=['docker', 'pull', kwargs['image']],check=True)
+            #client.images.pull(kwargs['image'])
 
         kwargs['restart_policy']={
             'Name': 'unless-stopped', 
@@ -126,13 +129,26 @@ class Service:
             name=self.name,
             hostname=self.name,
             **kwargs)
-        container.start()
 
         networks = self._get_networks(service_yml)
-        if len(networks)>1:
-            for network in networks[1:]:
-                client.networks.get(network).connect(container)
+        if len(networks)>0:
+            for network in networks:
+                kwargs = {}
+                offset = 0
+                if '/' in network:
+                    parts = network.split('/')
+                    network = parts[0]
+                    offset = int(parts[1])
 
+                docker_network = client.networks.get(network)
+                
+                if offset < 0:
+                    network_range = IPv4Network(docker_network.attrs['IPAM']['Config'][0]['Subnet'])
+                    kwargs['ipv4_address']=str(network_range[network_range.num_addresses-1+offset])
+
+                docker_network.connect(container,**kwargs)
+
+        container.start()
         container.reload()
 
         post_start = self._get_action("post-start")
@@ -165,7 +181,6 @@ class Service:
                 ports[port_parts[1]]=port_parts[0]
         environment=service_yml.get('env')
         privileged=service_yml.get('privileged')
-        networks=self._get_networks(service_yml)
         devices=service_yml.get('devices')
         mounts=service_yml.get('mount')
         volumes = []
@@ -193,8 +208,8 @@ class Service:
             kwargs['devices']=devices
         if privileged:
             kwargs['privileged']=True
-        kwargs['network']=networks[0]
         kwargs['image']=image
+
         return kwargs
 
     def _get_networks(self, service_yml:dict) -> List[str]:

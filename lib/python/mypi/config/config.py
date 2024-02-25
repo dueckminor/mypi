@@ -6,6 +6,7 @@ import re
 
 rootDir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 mypiYml = None
+__secrets_yml = None
 
 def get_root_dir():
     return rootDir
@@ -54,6 +55,18 @@ def GetConfig() -> Optional[dict]:
         except:
             return None
     return mypiYml['config']
+
+def get_secrets() -> Optional[dict]:
+    global rootDir
+    global __secrets_yml
+
+    with open(rootDir+"/config/secrets.yml") as stream:
+        try:
+            __secrets_yml = yaml.safe_load(stream)
+        except:
+            return None
+    return __secrets_yml['config']
+
 
 def get_service_dir(service_name:str) -> str:
     return os.path.join(rootDir,'services',service_name)

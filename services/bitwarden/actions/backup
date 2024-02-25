@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+
+from mypi.service.service import Service
+
+svc = Service(name='bitwarden')
+svc.dump_action('foo')

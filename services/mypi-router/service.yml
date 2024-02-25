@@ -5,6 +5,7 @@ service:
     - etc/letsencrypt
     - etc/mypi-auth/clients/mypi-router.yml:/opt/mypi/etc/mypi-auth/clients/mypi-router.yml
     - etc/mypi-router
+    - /opt/mypi/config/mypi.yml:/opt/mypi/config/mypi.yml
   ports:
     - 10080:10080/tcp
     - 10443:10443/tcp
@@ -15,4 +16,4 @@ service:
     - /etc/mypi-router/router.yml
   networks:
     - mypi-net
-    - mypi-internal
+    - mypi-internal/-1

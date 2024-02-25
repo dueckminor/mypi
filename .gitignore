@@ -7,3 +7,5 @@ vendor
 /opt
 __pycache__
 
+.venv
+.venv-debug

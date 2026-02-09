@@ -65,7 +65,7 @@ def get_secrets() -> Optional[dict]:
             __secrets_yml = yaml.safe_load(stream)
         except:
             return None
-    return __secrets_yml['config']
+    return __secrets_yml
 
 
 def get_service_dir(service_name:str) -> str:

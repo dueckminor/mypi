@@ -1,0 +1,13 @@
+service:
+  #image: ghcr.io/openccu/openccu
+  image: ghcr.io/openccu/openccu:3.85.7.20251129
+  pull: true
+  privileged: true
+  dockerargs:
+    - --cap-drop=SYS_BOOT
+  networks: 
+    - mypi-internal
+    - mypi-macvlan
+  mount:
+    - /lib/modules:/lib/modules:ro
+    - /opt/mypi/data/openccu_data:/usr/local
